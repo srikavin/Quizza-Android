@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/bottombaritem_profile"
+        android:icon="@drawable/ic_account_circle_white_24dp"
+        android:title="@string/bottombar_profile"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/bottombaritem_battle"
+        android:icon="@drawable/ic_account_circle_white_24dp"
+        android:title="@string/bottombar_battle"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/bottombaritem_learn"
+        android:icon="@drawable/ic_account_circle_white_24dp"
+        android:title="@string/bottombar_learn"
+        app:showAsAction="ifRoom" />
+
+</menu>
