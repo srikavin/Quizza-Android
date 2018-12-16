@@ -1,7 +1,8 @@
 package me.srikavin.quiz.model;
 
 import android.media.Image;
-import android.support.annotation.Nullable;
+
+import androidx.annotation.Nullable;
 
 public class QuizAnswer {
     boolean hasImage;
