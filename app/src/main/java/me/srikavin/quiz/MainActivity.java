@@ -14,9 +14,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import me.srikavin.quiz.view.BattleFragment;
+import me.srikavin.quiz.view.GameActivity;
 import me.srikavin.quiz.view.LearnFragment;
 import me.srikavin.quiz.view.ProfileFragment;
-import me.srikavin.quiz.view.QuizActivity;
 
 public class MainActivity extends AppCompatActivity {
     @Override
@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Intent intent = new Intent(getApplicationContext(), QuizActivity.class);
+        Intent intent = new Intent(getApplicationContext(), GameActivity.class);
         startActivity(intent);
     }
 }

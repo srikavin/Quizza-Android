@@ -10,11 +10,11 @@ import androidx.lifecycle.ViewModel;
 import me.srikavin.quiz.model.Quiz;
 import me.srikavin.quiz.repository.QuizRepository;
 
-public class QuizViewModel extends ViewModel {
+public class GameViewModel extends ViewModel {
     private MediatorLiveData<List<Quiz>> quizzes;
     private LiveData<List<Quiz>> dataSource;
 
-    public LiveData<List<Quiz>> getQuizzes() {
+    public LiveData<List<Quiz>> getQuiz() {
         if (quizzes == null) {
             quizzes = new MediatorLiveData<>();
             loadQuizzes();

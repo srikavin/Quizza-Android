@@ -5,7 +5,7 @@
     android:id="@+id/quiz"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".view.QuizFragment">
+    tools:context=".view.GameFragment">
 
     <TextView
         android:id="@+id/message"

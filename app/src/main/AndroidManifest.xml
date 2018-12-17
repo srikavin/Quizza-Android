@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".view.QuizActivity"
+            android:name=".view.GameActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 

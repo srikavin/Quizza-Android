@@ -12,7 +12,7 @@ import retrofit2.Response;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 
-public enum QuizRepository {
+public enum GameRepository {
     INSTANCE;
 
     private InternetQuizRepository internetQuizRepository = new InternetQuizRepository();
@@ -64,5 +64,8 @@ public enum QuizRepository {
     }
 
     public static class LocalQuizRepository {
+    }
+
+    public static class WifiDirectQuizRepository {
     }
 }

@@ -5,15 +5,15 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import me.srikavin.quiz.R;
 
-public class QuizActivity extends AppCompatActivity {
+public class GameActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.quiz_activity);
+        setContentView(R.layout.game_activity);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.container, QuizFragment.newInstance())
+                    .replace(R.id.container, GameFragment.newInstance())
                     .commitNow();
         }
     }
