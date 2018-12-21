@@ -21,12 +21,14 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import me.srikavin.quiz.R;
 import me.srikavin.quiz.model.Quiz;
 import me.srikavin.quiz.viewmodel.BattleViewModel;
 
 public class BattleFragment extends Fragment {
     private BattleViewModel mViewModel;
+    private QuizListAdapter adapter;
 
     @Nullable
     @Override
@@ -34,6 +36,8 @@ public class BattleFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_battle, container, false);
     }
+
+    private SwipeRefreshLayout swipeRefresh;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -44,7 +48,7 @@ public class BattleFragment extends Fragment {
 
         layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
 
-        final QuizListAdapter adapter = new QuizListAdapter();
+        adapter = new QuizListAdapter();
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
@@ -90,29 +94,30 @@ public class BattleFragment extends Fragment {
 
         adapter.setQuizzes(testing);
 
-        recyclerView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-
         mViewModel = ViewModelProviders.of(this).get(BattleViewModel.class);
         mViewModel.getQuizzes().observe(this, new Observer<List<Quiz>>() {
             @Override
             public void onChanged(@Nullable List<Quiz> quizzes) {
-                System.out.println(2);
                 if (quizzes != null) {
-                    for (Quiz e : quizzes) {
-                        System.out.println("SUCCESS");
-                        System.out.println(e.title);
-                    }
                     adapter.setQuizzes(quizzes);
                 } else {
                     Toast.makeText(getContext(), R.string.data_load_fail, Toast.LENGTH_LONG).show();
                 }
+                swipeRefresh.setRefreshing(false);
             }
         });
+
+        swipeRefresh = getView().findViewById(R.id.battle_swipe_refresh);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                updateQuizzes();
+            }
+        });
+    }
+
+    private void updateQuizzes() {
+        mViewModel.updateQuizzes();
     }
 
     static class QuizListAdapter extends RecyclerView.Adapter<QuizListViewHolder> {
@@ -124,6 +129,7 @@ public class BattleFragment extends Fragment {
 
         public void setQuizzes(List<Quiz> quizzes) {
             this.quizzes = quizzes;
+            this.notifyDataSetChanged();
         }
 
         @NonNull

@@ -3,6 +3,8 @@ package me.srikavin.quiz.repository;
 import java.util.List;
 import java.util.UUID;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.WorkerThread;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import me.srikavin.quiz.model.Quiz;
@@ -17,12 +19,17 @@ public enum QuizRepository {
 
     private InternetQuizRepository internetQuizRepository = new InternetQuizRepository();
 
-    public LiveData<List<Quiz>> getQuizzes() {
-        return internetQuizRepository.fetch();
+    public LiveData<List<Quiz>> getQuizzes(QuizzesResponseHandler handler) {
+        return internetQuizRepository.fetch(handler);
     }
 
     interface QuizService {
-        LiveData<List<Quiz>> fetch();
+        LiveData<List<Quiz>> fetch(QuizzesResponseHandler handler);
+    }
+
+    @WorkerThread
+    public interface QuizzesResponseHandler {
+        void updateQuizzes(@Nullable List<Quiz> quizzes);
     }
 
     static class InternetQuizRepository extends InternetRepository implements QuizService {
@@ -34,16 +41,16 @@ public enum QuizRepository {
         }
 
         @Override
-        public LiveData<List<Quiz>> fetch() {
+        public LiveData<List<Quiz>> fetch(final QuizzesResponseHandler handler) {
             final MutableLiveData<List<Quiz>> liveData = new MutableLiveData<>();
             quizService.getQuizzes().enqueue(new Callback<List<Quiz>>() {
                 @Override
                 public void onResponse(Call<List<Quiz>> call, Response<List<Quiz>> response) {
-                    liveData.postValue(response.body());
+                    handler.updateQuizzes(response.body());
                 }
 
                 public void onFailure(Call<List<Quiz>> call, Throwable t) {
-                    liveData.postValue(null);
+                    handler.updateQuizzes(null);
                 }
             });
 

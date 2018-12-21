@@ -19,7 +19,6 @@
         android:layout_height="wrap_content"
         android:layout_alignStart="@id/battle_grid_item_image"
         android:layout_alignEnd="@id/battle_grid_item_image"
-        android:layout_alignBottom="@id/battle_grid_item_image"
         android:layout_margin="1dp"
         android:background="#55000000"
         android:gravity="bottom"
@@ -28,6 +27,5 @@
         android:textColor="#ffffff"
         android:textSize="25sp"
         android:textStyle="bold" />
-    <!--/>-->
 
 </RelativeLayout>

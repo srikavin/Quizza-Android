@@ -4,37 +4,30 @@ import java.util.List;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import me.srikavin.quiz.model.Quiz;
 import me.srikavin.quiz.repository.QuizRepository;
 
 public class BattleViewModel extends ViewModel {
-    private MediatorLiveData<List<Quiz>> quizzes;
-    private LiveData<List<Quiz>> dataSource;
+    private MutableLiveData<List<Quiz>> quizzes;
 
     public LiveData<List<Quiz>> getQuizzes() {
         if (quizzes == null) {
-            quizzes = new MediatorLiveData<>();
-            loadQuizzes();
+            quizzes = new MutableLiveData<>();
+            updateQuizzes();
         }
         return quizzes;
     }
 
-    private void loadQuizzes() {
-        if (dataSource != null) {
-            quizzes.removeSource(dataSource);
-        }
-        dataSource = QuizRepository.INSTANCE.getQuizzes();
-
-        quizzes.addSource(dataSource, new Observer<List<Quiz>>() {
+    public void updateQuizzes() {
+        QuizRepository.INSTANCE.getQuizzes(new QuizRepository.QuizzesResponseHandler() {
             @Override
-            public void onChanged(@Nullable List<Quiz> changedQuizzes) {
-                quizzes.setValue(changedQuizzes);
-                System.out.println("CHANGED");
+            public void updateQuizzes(@Nullable List<Quiz> newQuizzes) {
+                if (newQuizzes != null) {
+                    quizzes.postValue(newQuizzes);
+                }
             }
         });
-
     }
 }

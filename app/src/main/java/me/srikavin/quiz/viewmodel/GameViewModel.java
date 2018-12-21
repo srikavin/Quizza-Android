@@ -2,13 +2,10 @@ package me.srikavin.quiz.viewmodel;
 
 import java.util.List;
 
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 import me.srikavin.quiz.model.Quiz;
-import me.srikavin.quiz.repository.QuizRepository;
 
 public class GameViewModel extends ViewModel {
     private MediatorLiveData<List<Quiz>> quizzes;
@@ -26,14 +23,14 @@ public class GameViewModel extends ViewModel {
         if (dataSource != null) {
             quizzes.removeSource(dataSource);
         }
-        dataSource = QuizRepository.INSTANCE.getQuizzes();
+//        dataSource = QuizRepository.INSTANCE.getQuizzes();
 
-        quizzes.addSource(dataSource, new Observer<List<Quiz>>() {
-            @Override
-            public void onChanged(@Nullable List<Quiz> changedQuizzes) {
-                quizzes.setValue(changedQuizzes);
-            }
-        });
+//        quizzes.addSource(dataSource, new Observer<List<Quiz>>() {
+//            @Override
+//            public void onChanged(@Nullable List<Quiz> changedQuizzes) {
+//                quizzes.setValue(changedQuizzes);
+//            }
+//        });
 
     }
 }
