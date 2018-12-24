@@ -1,12 +1,9 @@
 package me.srikavin.quiz.repository;
 
 import java.util.List;
-import java.util.UUID;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import me.srikavin.quiz.model.Quiz;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -19,17 +16,31 @@ public enum QuizRepository {
 
     private InternetQuizRepository internetQuizRepository = new InternetQuizRepository();
 
-    public LiveData<List<Quiz>> getQuizzes(QuizzesResponseHandler handler) {
-        return internetQuizRepository.fetch(handler);
+    public void getQuizByID(String id, QuizResponseHandler handler) {
+        internetQuizRepository.getQuizByID(id, handler);
+    }
+
+    public void getQuizzes(QuizResponseHandler handler) {
+        internetQuizRepository.getQuizzes(handler);
     }
 
     interface QuizService {
-        LiveData<List<Quiz>> fetch(QuizzesResponseHandler handler);
+        void getQuizzes(QuizResponseHandler handler);
+
+        void getQuizByID(String id, QuizResponseHandler handler);
+
     }
 
-    @WorkerThread
-    public interface QuizzesResponseHandler {
-        void updateQuizzes(@Nullable List<Quiz> quizzes);
+    public abstract static class QuizResponseHandler {
+        @WorkerThread
+        public void handleQuiz(@Nullable Quiz quizzes) {
+            //By default, do nothing
+        }
+
+        @WorkerThread
+        public void handleQuizzes(@Nullable List<Quiz> quizzes) {
+            //By default, do nothing
+        }
     }
 
     static class InternetQuizRepository extends InternetRepository implements QuizService {
@@ -41,20 +52,32 @@ public enum QuizRepository {
         }
 
         @Override
-        public LiveData<List<Quiz>> fetch(final QuizzesResponseHandler handler) {
-            final MutableLiveData<List<Quiz>> liveData = new MutableLiveData<>();
+        public void getQuizzes(final QuizResponseHandler handler) {
             quizService.getQuizzes().enqueue(new Callback<List<Quiz>>() {
                 @Override
                 public void onResponse(Call<List<Quiz>> call, Response<List<Quiz>> response) {
-                    handler.updateQuizzes(response.body());
+                    handler.handleQuizzes(response.body());
                 }
 
                 public void onFailure(Call<List<Quiz>> call, Throwable t) {
-                    handler.updateQuizzes(null);
+                    handler.handleQuizzes(null);
                 }
             });
+        }
 
-            return liveData;
+        @Override
+        public void getQuizByID(String id, final QuizResponseHandler handler) {
+            quizService.getQuizByID(id).enqueue(new Callback<Quiz>() {
+                @Override
+                public void onResponse(Call<Quiz> call, Response<Quiz> response) {
+                    handler.handleQuiz(response.body());
+                }
+
+                @Override
+                public void onFailure(Call<Quiz> call, Throwable t) {
+                    handler.handleQuiz(null);
+                }
+            });
         }
 
         interface InternetQuizService {
@@ -62,7 +85,7 @@ public enum QuizRepository {
             Call<List<Quiz>> getQuizzes();
 
             @GET("quizzes/{id}")
-            Call<List<Quiz>> getQuizByID(@Path("id") UUID id);
+            Call<Quiz> getQuizByID(@Path("id") String id);
         }
 
         private class QuizService {

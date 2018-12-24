@@ -1,7 +1,7 @@
 <resources>
-    <string name="app_name">Quiz</string>
+    <string name="app_name">FBLA QUIZ</string>
     <string name="bottombar_battle">Battle</string>
-    <string name="bottombar_learn">Learn</string>
+    <string name="bottombar_create">Create</string>
     <string name="bottombar_profile">Profile</string>
     <string name="data_load_fail">Failed to load data from server</string>
 </resources>

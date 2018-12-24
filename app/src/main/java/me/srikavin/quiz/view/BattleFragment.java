@@ -1,5 +1,7 @@
 package me.srikavin.quiz.view;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -48,7 +50,7 @@ public class BattleFragment extends Fragment {
 
         layoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
 
-        adapter = new QuizListAdapter();
+        adapter = new QuizListAdapter(this.getContext());
 
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
@@ -114,6 +116,7 @@ public class BattleFragment extends Fragment {
                 updateQuizzes();
             }
         });
+        getContext();
     }
 
     private void updateQuizzes() {
@@ -122,8 +125,10 @@ public class BattleFragment extends Fragment {
 
     static class QuizListAdapter extends RecyclerView.Adapter<QuizListViewHolder> {
         private List<Quiz> quizzes;
+        private Context context;
 
-        public QuizListAdapter() {
+        public QuizListAdapter(Context context) {
+            this.context = context;
             this.quizzes = new ArrayList<>();
         }
 
@@ -144,7 +149,13 @@ public class BattleFragment extends Fragment {
             holder.container.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Quiz quiz = quizzes.get(position);
                     Toast.makeText(holder.container.getContext(), quizzes.get(position).title, Toast.LENGTH_LONG).show();
+
+
+                    Intent intent = new Intent(context, QuizDetail.class);
+                    intent.putExtra("id", quiz.id);
+                    context.startActivity(intent);
                 }
             });
         }

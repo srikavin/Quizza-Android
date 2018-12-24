@@ -1,6 +1,5 @@
 package me.srikavin.quiz;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -10,11 +9,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import me.srikavin.quiz.view.BattleFragment;
-import me.srikavin.quiz.view.GameActivity;
 import me.srikavin.quiz.view.LearnFragment;
 import me.srikavin.quiz.view.ProfileFragment;
 
@@ -39,12 +38,15 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.bottombaritem_profile:
+                        updateTitle(0);
                         viewPager.setCurrentItem(0);
                         break;
                     case R.id.bottombaritem_battle:
+                        updateTitle(1);
                         viewPager.setCurrentItem(1);
                         break;
-                    case R.id.bottombaritem_learn:
+                    case R.id.bottombaritem_create:
+                        updateTitle(2);
                         viewPager.setCurrentItem(2);
                         break;
                 }
@@ -59,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
+                updateTitle(position);
                 switch (position) {
                     case 0:
                         bottomNavigationView.setSelectedItemId(R.id.bottombaritem_profile);
@@ -67,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
                         bottomNavigationView.setSelectedItemId(R.id.bottombaritem_battle);
                         break;
                     case 2:
-                        bottomNavigationView.setSelectedItemId(R.id.bottombaritem_learn);
+                        bottomNavigationView.setSelectedItemId(R.id.bottombaritem_create);
                         break;
                 }
             }
@@ -77,7 +80,24 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Intent intent = new Intent(getApplicationContext(), GameActivity.class);
-        startActivity(intent);
+        updateTitle(1);
+        bottomNavigationView.setSelectedItemId(R.id.bottombaritem_battle);
+        viewPager.setCurrentItem(1);
+    }
+
+    private void updateTitle(int page) {
+        ActionBar actionBar = getSupportActionBar();
+        assert actionBar != null;
+        switch (page) {
+            case 0:
+                actionBar.setTitle(R.string.bottombar_profile);
+                break;
+            case 1:
+                actionBar.setTitle(R.string.bottombar_battle);
+                break;
+            case 2:
+                actionBar.setTitle(R.string.bottombar_create);
+                break;
+        }
     }
 }

@@ -32,6 +32,11 @@
         <activity
             android:name=".view.GameActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".view.QuizDetail"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity android:name=".LoginActivity"></activity>
     </application>
 
 </manifest>

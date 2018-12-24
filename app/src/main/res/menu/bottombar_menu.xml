@@ -10,14 +10,14 @@
 
     <item
         android:id="@+id/bottombaritem_battle"
-        android:icon="@drawable/ic_account_circle_white_24dp"
+        android:icon="@drawable/ic_battle_icon_24dp"
         android:title="@string/bottombar_battle"
         app:showAsAction="ifRoom" />
 
     <item
-        android:id="@+id/bottombaritem_learn"
-        android:icon="@drawable/ic_account_circle_white_24dp"
-        android:title="@string/bottombar_learn"
+        android:id="@+id/bottombaritem_create"
+        android:icon="@drawable/ic_add_circle_black_24dp"
+        android:title="@string/bottombar_create"
         app:showAsAction="ifRoom" />
 
 </menu>

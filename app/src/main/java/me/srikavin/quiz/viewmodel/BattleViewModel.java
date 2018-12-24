@@ -21,12 +21,10 @@ public class BattleViewModel extends ViewModel {
     }
 
     public void updateQuizzes() {
-        QuizRepository.INSTANCE.getQuizzes(new QuizRepository.QuizzesResponseHandler() {
+        QuizRepository.INSTANCE.getQuizzes(new QuizRepository.QuizResponseHandler() {
             @Override
-            public void updateQuizzes(@Nullable List<Quiz> newQuizzes) {
-                if (newQuizzes != null) {
-                    quizzes.postValue(newQuizzes);
-                }
+            public void handleQuizzes(@Nullable List<Quiz> newQuizzes) {
+                quizzes.postValue(newQuizzes);
             }
         });
     }

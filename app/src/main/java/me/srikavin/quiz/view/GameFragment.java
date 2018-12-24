@@ -31,7 +31,7 @@ public class GameFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(GameViewModel.class);
-//        mViewModel.getQuiz().observe(this, new Observer<List<Quiz>>() {
+//        mViewModel.getQuizByID().observe(this, new Observer<List<Quiz>>() {
 //            @Override
 //            public void onChanged(@Nullable List<Quiz> quizzes) {
 //                if (quizzes != null) {
