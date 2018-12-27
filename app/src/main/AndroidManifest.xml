@@ -36,7 +36,9 @@
             android:name=".view.QuizDetail"
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity android:name=".LoginActivity"></activity>
+        <activity
+            android:name=".view.LoginActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"></activity>
     </application>
 
 </manifest>

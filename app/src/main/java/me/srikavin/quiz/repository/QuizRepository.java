@@ -47,6 +47,16 @@ public enum QuizRepository {
 
         private final InternetQuizService quizService;
 
+        @Override
+        protected Enum mapIntegerErrorCode(int error) {
+            return null;
+        }
+
+        @Override
+        protected void forwardNetworkError(ResponseHandler handler) {
+
+        }
+
         InternetQuizRepository() {
             quizService = retrofit.create(InternetQuizService.class);
         }
@@ -86,10 +96,6 @@ public enum QuizRepository {
 
             @GET("quizzes/{id}")
             Call<Quiz> getQuizByID(@Path("id") String id);
-        }
-
-        private class QuizService {
-
         }
     }
 

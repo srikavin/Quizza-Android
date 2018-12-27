@@ -1,5 +1,6 @@
 package me.srikavin.quiz;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -15,9 +16,12 @@ import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import me.srikavin.quiz.view.BattleFragment;
 import me.srikavin.quiz.view.LearnFragment;
+import me.srikavin.quiz.view.LoginActivity;
 import me.srikavin.quiz.view.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity {
+    public static String TAG = "QUIZ";
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,6 +87,9 @@ public class MainActivity extends AppCompatActivity {
         updateTitle(1);
         bottomNavigationView.setSelectedItemId(R.id.bottombaritem_battle);
         viewPager.setCurrentItem(1);
+
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivity(intent);
     }
 
     private void updateTitle(int page) {

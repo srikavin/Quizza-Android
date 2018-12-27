@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#ef6c00</color>
-    <color name="colorPrimaryDark">#b53d00</color>
-    <color name="colorPrimaryLight">#ff9d3f</color>
+    <color name="colorPrimary">#00bdd5</color>
+    <color name="colorPrimaryDark">#008ca4</color>
+    <color name="colorPrimaryLight">#63f0ff</color>
     <color name="colorBottomBarBackground">#f9f9f9</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorAccent">#f3fc70</color>
+    <color name="colorAccentDark">#bec93e</color>
+    <color name="colorAccentLight">#ffffa2</color>
+    <color name="colorLoginPanelLight">#f5f5f5</color>
+    <color name="colorLoginPanelDark">#f5f5f5</color>
+    <color name="colorLoginPanelBorder">#e0e0e0</color>
 </resources>

@@ -1,7 +1,9 @@
 <resources>
-    <string name="app_name">FBLA QUIZ</string>
+    <string name="app_name">QBrawl</string>
     <string name="bottombar_battle">Battle</string>
     <string name="bottombar_create">Create</string>
     <string name="bottombar_profile">Profile</string>
     <string name="data_load_fail">Failed to load data from server</string>
+    <string name="quiz_detail_battle">Battle!</string>
+    <string name="app_logo_content_description">App Logo</string>
 </resources>
