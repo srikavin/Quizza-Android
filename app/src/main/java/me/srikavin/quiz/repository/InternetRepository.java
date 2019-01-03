@@ -68,44 +68,59 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
 
     protected abstract void forwardNetworkError(R handler);
 
-    protected boolean handleAPIErrors(Response<?> response, R handler) {
-        try {
-            if (!response.isSuccessful() && response.errorBody() != null) {
-                JsonObject root = jsonParser.parse(response.errorBody().string()).getAsJsonObject();
+    /**
+     * Processes the response for error codes, calling {@link InternetRepository#mapIntegerErrorCode(int)},
+     * to map error codes, returning an array of errors, or null if no errors are present.
+     *
+     * @param response The Retrofit {@link Response} object received from an {@link Call#enqueue(Callback)}
+     *                 method call.
+     * @return An array containing errors or null if no errors are present.
+     */
+    protected E[] getAPIErrors(Response<?> response) throws IOException {
+        if (!response.isSuccessful() && response.errorBody() != null) {
+            JsonObject root = jsonParser.parse(response.errorBody().string()).getAsJsonObject();
 
-                APIError[] errors;
-                if (root.has("errors") && root.get("errors").isJsonArray()) {
-                    errors = gson.fromJson(root.getAsJsonArray("errors"), APIError[].class);
-                } else {
-                    return true;
-                }
-
-                Set<E> errs = new HashSet<>(errors.length);
-                for (APIError error : errors) {
-                    E mapped = mapIntegerErrorCode(error.code);
-                    if (mapped == null) {
-                        mapped = mapIntegerErrorCode(0);
-                    }
-                    errs.add(mapped);
-                }
-
-                if (errs.size() == 0) {
-                    return true;
-                }
-
-                //noinspection unchecked
-                E[] tmp = (E[]) Array.newInstance(mapIntegerErrorCode(0).getClass(), 0);
-                handler.handleErrors(errs.toArray(tmp));
-                return false;
+            APIError[] errors;
+            if (root.has("errors") && root.get("errors").isJsonArray()) {
+                errors = gson.fromJson(root.getAsJsonArray("errors"), APIError[].class);
+            } else {
+                return null;
             }
 
+            Set<E> errs = new HashSet<>(errors.length);
+            for (APIError error : errors) {
+                E mapped = mapIntegerErrorCode(error.code);
+                if (mapped == null) {
+                    mapped = mapIntegerErrorCode(0);
+                }
+                errs.add(mapped);
+            }
+
+            if (errs.size() == 0) {
+                return null;
+            }
+
+            //noinspection unchecked
+            E[] tmp = (E[]) Array.newInstance(mapIntegerErrorCode(0).getClass(), 0);
+            return errs.toArray(tmp);
+        }
+        return null;
+    }
+
+    protected boolean handleAPIErrors(Response<?> response, R handler) {
+        try {
+            E[] errors = getAPIErrors(response);
+            if (errors == null) {
+                return true;
+            }
+
+            handler.handleErrors(errors);
         } catch (Throwable e) {
             e.printStackTrace();
             forwardNetworkError(handler);
             return false;
         }
 
-        //noinspection unchecked
         return true;
     }
 
