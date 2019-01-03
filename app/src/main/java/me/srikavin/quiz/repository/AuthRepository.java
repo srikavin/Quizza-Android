@@ -1,5 +1,6 @@
 package me.srikavin.quiz.repository;
 
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.annotations.Expose;
@@ -9,26 +10,31 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import me.srikavin.quiz.model.AuthUser;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.http.Body;
-import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Path;
 
 import static me.srikavin.quiz.MainActivity.TAG;
 
 public enum AuthRepository {
     INSTANCE;
 
-    private InternetUserRepository internetUserRepository = new InternetUserRepository();
+    private InternetAuthRepository internetAuthRepository = new InternetAuthRepository();
+    private LocalAuthRepository localAuthRepository = new LocalAuthRepository();
 
     public void register(String username, String password, AuthResponseHandler handler) {
-        internetUserRepository.register(username, password, handler);
+        internetAuthRepository.register(username, password, handler);
     }
 
     public void login(String username, String password, AuthResponseHandler handler) {
-        internetUserRepository.login(username, password, handler);
+        internetAuthRepository.login(username, password, handler);
+    }
+
+    public void setAuthToken(Context context, String token) {
+        localAuthRepository.setAuthToken(context, token);
+    }
+
+    public String getAuthToken(Context context) {
+        return localAuthRepository.getAuthToken(context);
     }
 
 
@@ -57,9 +63,7 @@ public enum AuthRepository {
         }
     }
 
-    interface UserService {
-        void getUserByID(String id, AuthResponseHandler handler);
-
+    interface AuthService {
         void register(String username, String password, AuthResponseHandler handler);
 
         void login(String username, String password, AuthResponseHandler handler);
@@ -82,11 +86,11 @@ public enum AuthRepository {
         }
     }
 
-    static class InternetUserRepository extends InternetRepository<AuthUser, ErrorCodes, InternetRepository.ResponseHandler<ErrorCodes, AuthUser>> implements UserService {
+    static class InternetAuthRepository extends InternetRepository<AuthUser, ErrorCodes, InternetRepository.ResponseHandler<ErrorCodes, AuthUser>> implements AuthService {
 
         private final InternetUserService userService;
 
-        InternetUserRepository() {
+        InternetAuthRepository() {
             userService = retrofit.create(InternetUserService.class);
         }
 
@@ -101,11 +105,6 @@ public enum AuthRepository {
         }
 
         @Override
-        public void getUserByID(String id, AuthResponseHandler handler) {
-
-        }
-
-        @Override
         public void register(String username, String password, final AuthResponseHandler handler) {
             userService
                     .register(new LoginInformation(username, password))
@@ -114,23 +113,12 @@ public enum AuthRepository {
 
         @Override
         public void login(String username, String password, final AuthResponseHandler handler) {
-            userService.login(new LoginInformation(username, password)).enqueue(new Callback<AuthUser>() {
-                @Override
-                public void onResponse(Call<AuthUser> call, Response<AuthUser> response) {
-                    handler.handle(response.body());
-                }
-
-                @Override
-                public void onFailure(Call<AuthUser> call, Throwable t) {
-                    handler.handleErrors(ErrorCodes.NETWORK_ERROR);
-                }
-            });
+            userService
+                    .login(new LoginInformation(username, password))
+                    .enqueue(new DefaultRetrofitCallbackHandler(handler));
         }
 
         interface InternetUserService {
-            @GET("users/{id}")
-            Call<AuthUser> getUserByID(@Path("id") String id);
-
             @POST("auth/register")
             Call<AuthUser> register(@Body LoginInformation loginInformation);
 
@@ -151,6 +139,13 @@ public enum AuthRepository {
         }
     }
 
-    public static class LocalUserRepository {
+    public static class LocalAuthRepository {
+        public String getAuthToken(Context context) {
+            return context.getSharedPreferences("me.srikavin.quiz", Context.MODE_PRIVATE).getString("auth_token", null);
+        }
+
+        public void setAuthToken(Context context, String token) {
+            context.getSharedPreferences("me.srikavin.quiz", Context.MODE_PRIVATE).edit().putString("auth_token", token).apply();
+        }
     }
 }

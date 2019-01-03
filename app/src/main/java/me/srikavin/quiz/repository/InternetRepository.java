@@ -1,16 +1,23 @@
 package me.srikavin.quiz.repository;
 
+import android.content.Context;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.annotations.Expose;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import androidx.annotation.NonNull;
+import okhttp3.Interceptor;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -24,12 +31,37 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
     protected Retrofit retrofit;
     protected Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     protected JsonParser jsonParser = new JsonParser();
+    private AuthRequestInterceptor interceptor;
 
     public InternetRepository() {
+        interceptor = new AuthRequestInterceptor();
+        OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
         retrofit = new Retrofit.Builder()
                 .baseUrl("http://192.168.1.7:4000/api/v1/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
+                .client(client)
                 .build();
+    }
+
+    protected void ensureAuthorized(Context context) {
+        String token = AuthRepository.INSTANCE.getAuthToken(context);
+        interceptor.setToken(token);
+    }
+
+    static class AuthRequestInterceptor implements Interceptor {
+        private String token = "";
+
+        @Override
+        @NonNull
+        public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
+            Request.Builder ongoing = chain.request().newBuilder();
+            ongoing.addHeader("X-Authorization", this.token);
+            return chain.proceed(ongoing.build());
+        }
+
+        void setToken(String token) {
+            this.token = token;
+        }
     }
 
     protected abstract E mapIntegerErrorCode(int error);

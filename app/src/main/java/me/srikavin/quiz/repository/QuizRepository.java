@@ -1,5 +1,6 @@
 package me.srikavin.quiz.repository;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.util.List;
@@ -26,6 +27,10 @@ public enum QuizRepository {
 
     public void getQuizzes(QuizResponseHandler handler) {
         internetQuizRepository.getQuizzes(handler);
+    }
+
+    public void getDrafts(Context context, QuizResponseHandler handler) {
+        internetQuizRepository.getDrafts(context, handler);
     }
 
     public void createQuiz(Quiz quiz, QuizResponseHandler handler) {
@@ -59,6 +64,8 @@ public enum QuizRepository {
 
     interface QuizService {
         void getQuizzes(QuizResponseHandler handler);
+
+        void getDrafts(Context context, QuizResponseHandler handler);
 
         void getQuizByID(String id, QuizResponseHandler handler);
 
@@ -109,6 +116,11 @@ public enum QuizRepository {
         }
 
         @Override
+        public void getDrafts(Context context, QuizResponseHandler handler) {
+            ensureAuthorized(context);
+        }
+
+        @Override
         public void getQuizByID(String id, final QuizResponseHandler handler) {
             quizService.getQuizByID(id).enqueue(new DefaultRetrofitCallbackHandler(handler));
         }
@@ -126,6 +138,9 @@ public enum QuizRepository {
         interface InternetQuizService {
             @GET("quizzes/")
             Call<List<Quiz>> getQuizzes();
+
+            @GET("quizzes/drafts")
+            Call<List<Quiz>> getDrafts();
 
             @GET("quizzes/{id}")
             Call<Quiz> getQuizByID(@Path("id") String id);

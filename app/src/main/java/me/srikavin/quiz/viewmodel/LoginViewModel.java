@@ -1,19 +1,25 @@
 package me.srikavin.quiz.viewmodel;
 
+import android.app.Application;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import me.srikavin.quiz.model.AuthUser;
 import me.srikavin.quiz.repository.AuthRepository;
 import me.srikavin.quiz.repository.error.ErrorWrapper;
 
 import static me.srikavin.quiz.MainActivity.TAG;
 
-public class LoginViewModel extends ViewModel {
+public class LoginViewModel extends AndroidViewModel {
     private MutableLiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>> currentUser;
+
+    public LoginViewModel(@NonNull Application application) {
+        super(application);
+    }
 
     public LiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>> register(String username, String password) {
         if (currentUser == null) {
@@ -35,6 +41,7 @@ public class LoginViewModel extends ViewModel {
         AuthRepository.INSTANCE.login(username, password, new AuthRepository.AuthResponseHandler() {
             @Override
             public void handle(@Nullable AuthUser user) {
+                AuthRepository.INSTANCE.setAuthToken(getApplication().getApplicationContext(), user.getToken());
                 ErrorWrapper<AuthUser, AuthRepository.ErrorCodes> ret = new ErrorWrapper<>(user, null);
                 currentUser.postValue(ret);
             }
@@ -51,6 +58,7 @@ public class LoginViewModel extends ViewModel {
         AuthRepository.INSTANCE.register(username, password, new AuthRepository.AuthResponseHandler() {
             @Override
             public void handle(@Nullable AuthUser user) {
+                AuthRepository.INSTANCE.setAuthToken(getApplication().getApplicationContext(), user.getToken());
                 ErrorWrapper<AuthUser, AuthRepository.ErrorCodes> ret = new ErrorWrapper<>(user, null);
                 currentUser.postValue(ret);
             }

@@ -22,6 +22,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
+import me.srikavin.quiz.MainActivity;
 import me.srikavin.quiz.R;
 import me.srikavin.quiz.model.AuthUser;
 import me.srikavin.quiz.repository.AuthRepository;
@@ -108,6 +109,9 @@ public class LoginFragment extends Fragment {
         });
     }
 
+    /**
+     * Handles the display and redirection to another activity after a login attempt.
+     */
     private void handleAuthResult(ErrorWrapper<AuthUser, AuthRepository.ErrorCodes> wrapper) {
         if (wrapper.hasErrors()) {
             for (AuthRepository.ErrorCodes e : wrapper.getErrors()) {
@@ -141,9 +145,11 @@ public class LoginFragment extends Fragment {
         }
 
         Toast.makeText(getContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
-//        Intent intent = new Intent(getContext(), MainActivity.class);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-//        startActivity(intent);
+        System.out.println(wrapper.getData());
+        Intent intent = new Intent(getContext(), MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("auth", true);
+        startActivity(intent);
     }
 
     public void handleGoogleSignIn(Intent data) {
