@@ -55,7 +55,7 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
         @NonNull
         public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
             Request.Builder ongoing = chain.request().newBuilder();
-            ongoing.addHeader("X-Authorization", this.token);
+            ongoing.addHeader("x-access-token", this.token);
             return chain.proceed(ongoing.build());
         }
 
