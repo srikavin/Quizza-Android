@@ -7,7 +7,7 @@ import com.google.gson.annotations.Expose;
 import java.util.List;
 
 import androidx.annotation.Nullable;
-import me.srikavin.quiz.model.UserProfile;
+import me.srikavin.quiz.model.AuthUser;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -18,20 +18,16 @@ import retrofit2.http.Path;
 
 import static me.srikavin.quiz.MainActivity.TAG;
 
-public enum UserRepository {
+public enum AuthRepository {
     INSTANCE;
 
     private InternetUserRepository internetUserRepository = new InternetUserRepository();
 
-    public void getUserByID(String id, UserResponseHandler handler) {
-        internetUserRepository.getUserByID(id, handler);
-    }
-
-    public void register(String username, String password, UserResponseHandler handler) {
+    public void register(String username, String password, AuthResponseHandler handler) {
         internetUserRepository.register(username, password, handler);
     }
 
-    public void login(String username, String password, UserResponseHandler handler) {
+    public void login(String username, String password, AuthResponseHandler handler) {
         internetUserRepository.login(username, password, handler);
     }
 
@@ -62,19 +58,19 @@ public enum UserRepository {
     }
 
     interface UserService {
-        void getUserByID(String id, UserResponseHandler handler);
+        void getUserByID(String id, AuthResponseHandler handler);
 
-        void register(String username, String password, UserResponseHandler handler);
+        void register(String username, String password, AuthResponseHandler handler);
 
-        void login(String username, String password, UserResponseHandler handler);
+        void login(String username, String password, AuthResponseHandler handler);
     }
 
-    public abstract static class UserResponseHandler extends Repository.ResponseHandler<ErrorCodes, UserProfile> {
-        public void handle(@Nullable UserProfile user) {
+    public abstract static class AuthResponseHandler extends Repository.ResponseHandler<ErrorCodes, AuthUser> {
+        public void handle(@Nullable AuthUser user) {
             //By default, do nothing
         }
 
-        public void handleMultiple(@Nullable List<UserProfile> users) {
+        public void handleMultiple(@Nullable List<AuthUser> users) {
             //By default, do nothing
         }
 
@@ -86,7 +82,7 @@ public enum UserRepository {
         }
     }
 
-    static class InternetUserRepository extends InternetRepository<UserProfile, ErrorCodes, InternetRepository.ResponseHandler<ErrorCodes, UserProfile>> implements UserService {
+    static class InternetUserRepository extends InternetRepository<AuthUser, ErrorCodes, InternetRepository.ResponseHandler<ErrorCodes, AuthUser>> implements UserService {
 
         private final InternetUserService userService;
 
@@ -105,27 +101,27 @@ public enum UserRepository {
         }
 
         @Override
-        public void getUserByID(String id, UserResponseHandler handler) {
+        public void getUserByID(String id, AuthResponseHandler handler) {
 
         }
 
         @Override
-        public void register(String username, String password, final UserResponseHandler handler) {
+        public void register(String username, String password, final AuthResponseHandler handler) {
             userService
                     .register(new LoginInformation(username, password))
                     .enqueue(new DefaultRetrofitCallbackHandler(handler));
         }
 
         @Override
-        public void login(String username, String password, final UserResponseHandler handler) {
-            userService.login(new LoginInformation(username, password)).enqueue(new Callback<UserProfile>() {
+        public void login(String username, String password, final AuthResponseHandler handler) {
+            userService.login(new LoginInformation(username, password)).enqueue(new Callback<AuthUser>() {
                 @Override
-                public void onResponse(Call<UserProfile> call, Response<UserProfile> response) {
+                public void onResponse(Call<AuthUser> call, Response<AuthUser> response) {
                     handler.handle(response.body());
                 }
 
                 @Override
-                public void onFailure(Call<UserProfile> call, Throwable t) {
+                public void onFailure(Call<AuthUser> call, Throwable t) {
                     handler.handleErrors(ErrorCodes.NETWORK_ERROR);
                 }
             });
@@ -133,13 +129,13 @@ public enum UserRepository {
 
         interface InternetUserService {
             @GET("users/{id}")
-            Call<UserProfile> getUserByID(@Path("id") String id);
+            Call<AuthUser> getUserByID(@Path("id") String id);
 
             @POST("auth/register")
-            Call<UserProfile> register(@Body LoginInformation loginInformation);
+            Call<AuthUser> register(@Body LoginInformation loginInformation);
 
             @POST("auth/login")
-            Call<UserProfile> login(@Body LoginInformation loginInformation);
+            Call<AuthUser> login(@Body LoginInformation loginInformation);
         }
 
         static class LoginInformation {

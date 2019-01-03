@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/quiz_edit_toolbar_save"
+        android:title="@string/quiz_edit_toolbar_save_text"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/quiz_edit_toolbar_publish"
+        android:title="@string/quiz_edit_toolbar_publish_text"
+        app:showAsAction="ifRoom" />
+</menu>

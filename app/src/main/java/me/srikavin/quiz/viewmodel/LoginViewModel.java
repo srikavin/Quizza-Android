@@ -6,15 +6,16 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-import me.srikavin.quiz.model.UserProfile;
-import me.srikavin.quiz.repository.UserRepository;
+import me.srikavin.quiz.model.AuthUser;
+import me.srikavin.quiz.repository.AuthRepository;
+import me.srikavin.quiz.repository.error.ErrorWrapper;
 
 import static me.srikavin.quiz.MainActivity.TAG;
 
 public class LoginViewModel extends ViewModel {
-    private MutableLiveData<ErrorWrapper<UserProfile>> currentUser;
+    private MutableLiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>> currentUser;
 
-    public LiveData<ErrorWrapper<UserProfile>> register(String username, String password) {
+    public LiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>> register(String username, String password) {
         if (currentUser == null) {
             currentUser = new MutableLiveData<>();
         }
@@ -22,7 +23,7 @@ public class LoginViewModel extends ViewModel {
         return currentUser;
     }
 
-    public LiveData<ErrorWrapper<UserProfile>> login(String username, String password) {
+    public LiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>> login(String username, String password) {
         if (currentUser == null) {
             currentUser = new MutableLiveData<>();
         }
@@ -31,68 +32,39 @@ public class LoginViewModel extends ViewModel {
     }
 
     private void loginAccount(String username, String password) {
-        UserRepository.INSTANCE.login(username, password, new UserRepository.UserResponseHandler() {
+        AuthRepository.INSTANCE.login(username, password, new AuthRepository.AuthResponseHandler() {
             @Override
-            public void handle(@Nullable UserProfile user) {
-                ErrorWrapper<UserProfile> ret = new ErrorWrapper<>(user, null);
+            public void handle(@Nullable AuthUser user) {
+                ErrorWrapper<AuthUser, AuthRepository.ErrorCodes> ret = new ErrorWrapper<>(user, null);
                 currentUser.postValue(ret);
             }
 
             @Override
-            public void handleErrors(UserRepository.ErrorCodes... errors) {
-                ErrorWrapper<UserProfile> ret = new ErrorWrapper<>(null, null);
+            public void handleErrors(AuthRepository.ErrorCodes... errors) {
+                ErrorWrapper<AuthUser, AuthRepository.ErrorCodes> ret = new ErrorWrapper<>(null, errors);
                 currentUser.postValue(ret);
             }
         });
     }
 
     public void registerAccount(String username, String password) {
-        UserRepository.INSTANCE.register(username, password, new UserRepository.UserResponseHandler() {
+        AuthRepository.INSTANCE.register(username, password, new AuthRepository.AuthResponseHandler() {
             @Override
-            public void handle(@Nullable UserProfile user) {
-                ErrorWrapper<UserProfile> ret = new ErrorWrapper<>(user, null);
+            public void handle(@Nullable AuthUser user) {
+                ErrorWrapper<AuthUser, AuthRepository.ErrorCodes> ret = new ErrorWrapper<>(user, null);
                 currentUser.postValue(ret);
             }
 
             @Override
-            public void handleErrors(UserRepository.ErrorCodes... errors) {
-                for (UserRepository.ErrorCodes e : errors) {
+            public void handleErrors(AuthRepository.ErrorCodes... errors) {
+                for (AuthRepository.ErrorCodes e : errors) {
                     Log.w(TAG, "Ignored error code: " + e.name());
                 }
 
-
-                ErrorWrapper<UserProfile> ret = new ErrorWrapper<>(null, null);
+                ErrorWrapper<AuthUser, AuthRepository.ErrorCodes> ret = new ErrorWrapper<>(null, errors);
                 currentUser.postValue(ret);
             }
         });
 
-    }
-
-    static class ErrorState {
-        private int error;
-        private String errorMessage;
-
-        public ErrorState(int error, String errorMessage) {
-            this.error = error;
-            this.errorMessage = errorMessage;
-        }
-    }
-
-    static class ErrorWrapper<T> {
-        T data;
-        ErrorState error;
-
-        public ErrorWrapper(T data, ErrorState error) {
-            this.data = data;
-            this.error = error;
-        }
-
-        public T getLiveData() {
-            return data;
-        }
-
-        public ErrorState getError() {
-            return error;
-        }
     }
 }

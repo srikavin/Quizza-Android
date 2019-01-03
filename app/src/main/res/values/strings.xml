@@ -1,9 +1,41 @@
 <resources>
-    <string name="app_name">QBrawl</string>
+    <string name="app_name">Quizza</string>
     <string name="bottombar_battle">Battle</string>
     <string name="bottombar_create">Create</string>
     <string name="bottombar_profile">Profile</string>
     <string name="data_load_fail">Failed to load data from server</string>
+    <string name="data_save_fail">Failed to save data to server</string>
+    <string name="data_save_success">Successfully saved data to server</string>
     <string name="quiz_detail_battle">Battle!</string>
     <string name="app_logo_content_description">App Logo</string>
+    <string name="create_no_existing_quizzes">You have no existing quizzes.</string>
+    <string name="create_no_existing_quizzes_create_button">Create a new Quiz?</string>
+    <string name="create_no_existing_questions">This quiz has no questions.</string>
+    <string name="create_no_existing_questions_create_button">Create a question?</string>
+    <string name="create_question_title">Create Question</string>
+    <string name="answer_check_correct_tooltip">Mark answer as correct</string>
+    <string name="answer_delete_description">Delete answer</string>
+    <string name="delete_question_confirm">Are you sure you want to delete this question?</string>
+    <string name="delete_question_confirm_title">Delete Question</string>
+    <string name="delete_question_delete_button">Delete</string>
+    <string name="delete_question_cancel_button">Cancel</string>
+    <string name="quiz_edit_toolbar_save_text">Save</string>
+    <string name="quiz_edit_toolbar_publish_text">Publish</string>
+    <string name="google_client_id">923132938234-j3jeugok4jnc9m05toufduphd98i87jj.apps.googleusercontent.com</string>
+    <string name="server_client_id">923132938234-d940agtrj3l6hr2esg3hqd77dp2p5j5r.apps.googleusercontent.com</string>
+    <string name="error_username_or_password_incorrect">The username or password did was incorrect.</string>
+    <string name="error_username_invalid">The username specified is invalid. Usernames must be between 5 and 18 characters long.</string>
+    <string name="error_username_taken">The given username is already registered.</string>
+    <string name="error_password_invalid">The password specified is invalid. Passwords must be 6 characters long.</string>
+    <string name="error_network">An error occurred while communicating with the server.</string>
+    <string name="error_server">A server-side error occurred. Try again later.</string>
+    <string name="error_unknown">An unknown error occurred</string>
+    <plurals name="contains_x_questions">
+        <item quantity="one">Contains %d question</item>
+        <item quantity="other">Contains %d questions</item>
+    </plurals>
+    <plurals name="contains_x_answers">
+        <item quantity="one">Contains %d answer</item>
+        <item quantity="other">Contains %d answers</item>
+    </plurals>
 </resources>

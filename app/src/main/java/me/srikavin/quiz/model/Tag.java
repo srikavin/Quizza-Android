@@ -2,10 +2,7 @@ package me.srikavin.quiz.model;
 
 import com.google.gson.annotations.Expose;
 
-public class QuizPlayer {
+public class Tag {
     @Expose
-    UserProfile profile;
-    @Expose
-    int points;
-
+    public String name;
 }

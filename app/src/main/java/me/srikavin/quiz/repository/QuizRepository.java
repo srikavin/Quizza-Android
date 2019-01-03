@@ -1,15 +1,19 @@
 package me.srikavin.quiz.repository;
 
+import android.util.Log;
+
 import java.util.List;
 
-import androidx.annotation.Nullable;
-import androidx.annotation.WorkerThread;
+import androidx.annotation.NonNull;
 import me.srikavin.quiz.model.Quiz;
 import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
+
+import static me.srikavin.quiz.MainActivity.TAG;
 
 public enum QuizRepository {
     INSTANCE;
@@ -24,37 +28,75 @@ public enum QuizRepository {
         internetQuizRepository.getQuizzes(handler);
     }
 
+    public void createQuiz(Quiz quiz, QuizResponseHandler handler) {
+        internetQuizRepository.createQuiz(quiz, handler);
+    }
+
+    public void editQuiz(String id, Quiz quiz, QuizResponseHandler handler) {
+        internetQuizRepository.editQuiz(id, quiz, handler);
+    }
+
+    public enum ErrorCodes {
+        UNKNOWN_ERROR(0),
+        NETWORK_ERROR(5),
+        SERVER_ERROR(6);
+
+        private int code;
+
+        ErrorCodes(int code) {
+            this.code = code;
+        }
+
+        static ErrorCodes fromCode(int errorCode) {
+            for (ErrorCodes e : values()) {
+                if (errorCode == e.code) {
+                    return e;
+                }
+            }
+            return UNKNOWN_ERROR;
+        }
+    }
+
     interface QuizService {
         void getQuizzes(QuizResponseHandler handler);
 
         void getQuizByID(String id, QuizResponseHandler handler);
 
+        void createQuiz(Quiz quiz, QuizResponseHandler handler);
+
+        void editQuiz(String id, Quiz quiz, QuizResponseHandler handler);
     }
 
-    public abstract static class QuizResponseHandler {
-        @WorkerThread
-        public void handleQuiz(@Nullable Quiz quizzes) {
+    public abstract static class QuizResponseHandler extends Repository.ResponseHandler<ErrorCodes, Quiz> {
+        public void handle(Quiz user) {
             //By default, do nothing
         }
 
-        @WorkerThread
-        public void handleQuizzes(@Nullable List<Quiz> quizzes) {
+        public void handleMultiple(List<Quiz> users) {
             //By default, do nothing
+        }
+
+        @Override
+        public void handleErrors(@NonNull ErrorCodes... errors) {
+            //By default, print error codes
+            for (QuizRepository.ErrorCodes e : errors) {
+                Log.w(TAG, "Ignored error code: " + e.name());
+            }
         }
     }
 
-    static class InternetQuizRepository extends InternetRepository implements QuizService {
+    static class InternetQuizRepository extends InternetRepository<Quiz, ErrorCodes, Repository.ResponseHandler<ErrorCodes, Quiz>> implements QuizService {
 
         private final InternetQuizService quizService;
 
         @Override
-        protected Enum mapIntegerErrorCode(int error) {
-            return null;
+        protected ErrorCodes mapIntegerErrorCode(int error) {
+            return ErrorCodes.fromCode(error);
         }
 
         @Override
-        protected void forwardNetworkError(ResponseHandler handler) {
-
+        protected void forwardNetworkError(ResponseHandler<ErrorCodes, Quiz> handler) {
+            handler.handleErrors(new ErrorCodes[]{ErrorCodes.UNKNOWN_ERROR});
         }
 
         InternetQuizRepository() {
@@ -63,31 +105,22 @@ public enum QuizRepository {
 
         @Override
         public void getQuizzes(final QuizResponseHandler handler) {
-            quizService.getQuizzes().enqueue(new Callback<List<Quiz>>() {
-                @Override
-                public void onResponse(Call<List<Quiz>> call, Response<List<Quiz>> response) {
-                    handler.handleQuizzes(response.body());
-                }
-
-                public void onFailure(Call<List<Quiz>> call, Throwable t) {
-                    handler.handleQuizzes(null);
-                }
-            });
+            quizService.getQuizzes().enqueue(new DefaultMultiRetrofitCallbackHandler(handler));
         }
 
         @Override
         public void getQuizByID(String id, final QuizResponseHandler handler) {
-            quizService.getQuizByID(id).enqueue(new Callback<Quiz>() {
-                @Override
-                public void onResponse(Call<Quiz> call, Response<Quiz> response) {
-                    handler.handleQuiz(response.body());
-                }
+            quizService.getQuizByID(id).enqueue(new DefaultRetrofitCallbackHandler(handler));
+        }
 
-                @Override
-                public void onFailure(Call<Quiz> call, Throwable t) {
-                    handler.handleQuiz(null);
-                }
-            });
+        @Override
+        public void createQuiz(Quiz quiz, final QuizResponseHandler handler) {
+            quizService.createQuiz(quiz).enqueue(new DefaultRetrofitCallbackHandler(handler));
+        }
+
+        @Override
+        public void editQuiz(String id, Quiz quiz, QuizResponseHandler handler) {
+            quizService.editQuiz(id, quiz).enqueue(new DefaultRetrofitCallbackHandler(handler));
         }
 
         interface InternetQuizService {
@@ -96,6 +129,13 @@ public enum QuizRepository {
 
             @GET("quizzes/{id}")
             Call<Quiz> getQuizByID(@Path("id") String id);
+
+            @POST("quizzes/")
+            Call<Quiz> createQuiz(@Body Quiz quiz);
+
+
+            @PUT("quizzes/{id}")
+            Call<Quiz> editQuiz(@Path("id") String id, @Body Quiz quiz);
         }
     }
 

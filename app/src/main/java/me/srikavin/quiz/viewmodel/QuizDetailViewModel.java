@@ -25,7 +25,7 @@ public class QuizDetailViewModel extends ViewModel {
     public void updateQuiz(final String id) {
         QuizRepository.INSTANCE.getQuizByID(id, new QuizRepository.QuizResponseHandler() {
             @Override
-            public void handleQuiz(@Nullable Quiz newQuiz) {
+            public void handle(@Nullable Quiz newQuiz) {
                 quizzes.get(id).postValue(newQuiz);
             }
         });

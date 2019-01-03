@@ -1,8 +1,10 @@
 package me.srikavin.quiz.repository;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.annotations.Expose;
 
 import java.lang.reflect.Array;
 import java.util.HashSet;
@@ -20,13 +22,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
  */
 public abstract class InternetRepository<T, E extends Enum, R extends Repository.ResponseHandler<E, T>> extends Repository {
     protected Retrofit retrofit;
-    protected Gson gson = new Gson();
+    protected Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     protected JsonParser jsonParser = new JsonParser();
 
     public InternetRepository() {
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.107:4000/api/v1/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .baseUrl("http://192.168.1.7:4000/api/v1/")
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
     }
 
@@ -38,6 +40,7 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
         try {
             if (!response.isSuccessful() && response.errorBody() != null) {
                 JsonObject root = jsonParser.parse(response.errorBody().string()).getAsJsonObject();
+
                 APIError[] errors;
                 if (root.has("errors") && root.get("errors").isJsonArray()) {
                     errors = gson.fromJson(root.getAsJsonArray("errors"), APIError[].class);
@@ -75,11 +78,13 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
     }
 
     public static class APIError {
+        @Expose
         public String msg;
+        @Expose
         public int code;
     }
 
-    protected abstract class RetrofitCallbackHandler<T> implements Callback<T> {
+    protected abstract class RetrofitCallbackHandler<W> implements Callback<W> {
         private final R handler;
 
         public RetrofitCallbackHandler(R handler) {
@@ -87,14 +92,14 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
         }
 
         @Override
-        public void onResponse(Call<T> call, Response<T> response) {
+        public void onResponse(Call<W> call, Response<W> response) {
             if (handleAPIErrors(response, getHandler())) {
                 handle(response.body());
             }
         }
 
         @Override
-        public void onFailure(Call<T> call, Throwable t) {
+        public void onFailure(Call<W> call, Throwable t) {
             forwardNetworkError(getHandler());
 
         }
@@ -103,7 +108,7 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
             return handler;
         }
 
-        public abstract void handle(T data);
+        public abstract void handle(W data);
     }
 
     protected class DefaultRetrofitCallbackHandler extends RetrofitCallbackHandler<T> {
@@ -113,12 +118,18 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
 
         @Override
         public void handle(T data) {
-            if (data instanceof List) {
-                //noinspection unchecked
-                getHandler().handleMultiple((List) data);
-            } else {
-                getHandler().handle(data);
-            }
+            getHandler().handle(data);
+        }
+    }
+
+    protected class DefaultMultiRetrofitCallbackHandler extends RetrofitCallbackHandler<List<T>> {
+        public DefaultMultiRetrofitCallbackHandler(R handler) {
+            super(handler);
+        }
+
+        @Override
+        public void handle(List<T> data) {
+            getHandler().handleMultiple(data);
         }
     }
 }

@@ -15,7 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 import me.srikavin.quiz.view.BattleFragment;
-import me.srikavin.quiz.view.LearnFragment;
+import me.srikavin.quiz.view.CreateFragment;
 import me.srikavin.quiz.view.LoginActivity;
 import me.srikavin.quiz.view.ProfileFragment;
 
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         List<Fragment> possibleStates = new ArrayList<>();
         possibleStates.add(new ProfileFragment());
         possibleStates.add(new BattleFragment());
-        possibleStates.add(new LearnFragment());
+        possibleStates.add(new CreateFragment());
 
         final ViewPager viewPager = findViewById(R.id.main_viewpager);
         viewPager.setAdapter(new SlidingPagerAdapter(getSupportFragmentManager(), possibleStates));
@@ -89,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         viewPager.setCurrentItem(1);
 
         Intent intent = new Intent(this, LoginActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
 

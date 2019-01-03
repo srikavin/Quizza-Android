@@ -1,0 +1,455 @@
+package me.srikavin.quiz.view;
+
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.LayoutInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.gson.Gson;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.AppCompatButton;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+import me.srikavin.quiz.R;
+import me.srikavin.quiz.model.Quiz;
+import me.srikavin.quiz.model.QuizAnswer;
+import me.srikavin.quiz.model.QuizQuestion;
+import me.srikavin.quiz.viewmodel.QuizEditViewModel;
+
+public class QuizEditFragment extends Fragment {
+
+    private Quiz quiz;
+    private QuizEditViewModel mViewModel;
+    private QuestionAdapter questionAdapter;
+    private View noQuestionOverlay;
+
+    public static QuizEditFragment newInstance(@NonNull Mode mode, @Nullable String quizId) {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("mode", mode);
+        bundle.putSerializable("id", quizId);
+
+        QuizEditFragment fragment = new QuizEditFragment();
+        fragment.setRetainInstance(true);
+        fragment.setArguments(bundle);
+
+        return fragment;
+    }
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.quiz_edit_fragment, container, false);
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mViewModel = ViewModelProviders.of(this).get(QuizEditViewModel.class);
+
+        assert getArguments() != null;
+
+        Mode mode = (Mode) getArguments().get("mode");
+        String id = getArguments().getString("id");
+
+        assert mode != null;
+
+        switch (mode) {
+            case CREATE:
+                quiz = mViewModel.createQuiz();
+                break;
+            case EDIT:
+                // quiz = get quiz from repository
+                break;
+        }
+
+        RecyclerView questions = getView().findViewById(R.id.quiz_edit_questions_list);
+        Toolbar toolbar = getView().findViewById(R.id.create_toolbar);
+        toolbar.inflateMenu(R.menu.quiz_edit_toolbar_menu);
+        toolbar.getMenu().findItem(R.id.quiz_edit_toolbar_save).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                mViewModel.saveQuiz().observe(getViewLifecycleOwner(), new Observer<Quiz>() {
+                    @Override
+                    public void onChanged(Quiz quiz) {
+                        if (quiz != null) {
+                            Toast.makeText(getContext(), getString(R.string.data_save_fail), Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), getString(R.string.data_save_success), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+                return true;
+            }
+        });
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.quiz_edit_toolbar_save:
+                        return true;
+                    case R.id.quiz_edit_toolbar_publish:
+                        return true;
+                }
+                return false;
+            }
+        });
+
+        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                return false;
+            }
+        });
+
+        FloatingActionButton createQuestionFab = getView().findViewById(R.id.create_question_fab);
+        AppCompatButton createQuestionButton = getView().findViewById(R.id.create_question_button);
+
+        createQuestionFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createQuestion();
+            }
+        });
+
+        createQuestionButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                createQuestion();
+            }
+        });
+
+        toolbar.setTitle("Create Quiz");
+
+        questionAdapter = new QuestionAdapter();
+        questions.setAdapter(questionAdapter);
+        questions.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        noQuestionOverlay = getView().findViewById(R.id.quiz_edit_no_questions_state);
+
+        EditText quizTitle = getView().findViewById(R.id.quiz_edit_quiz_title);
+
+        quizTitle.setText(quiz.title);
+
+        quizTitle.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                quiz.title = s.toString();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        updateNoQuestionOverlay();
+    }
+
+    private void updateNoQuestionOverlay() {
+        noQuestionOverlay.setVisibility(quiz.questions.size() == 0 ? View.VISIBLE : View.GONE);
+    }
+
+    private void createQuestion() {
+        QuizQuestion newQuestion = new QuizQuestion();
+        newQuestion.answers.add(new QuizAnswer());
+        quiz.questions.add(newQuestion);
+        questionAdapter.notifyDataSetChanged();
+        updateNoQuestionOverlay();
+    }
+
+    private void deleteQuestion(QuizQuestion question) {
+        quiz.questions.remove(question);
+        questionAdapter.notifyDataSetChanged();
+        updateNoQuestionOverlay();
+    }
+
+    public enum Mode {
+        CREATE,
+        EDIT
+    }
+
+    private static class AnswerAdapter extends RecyclerView.Adapter<AnswerViewHolder> {
+        private QuizQuestion question;
+        private QuestionViewHolder questionViewHolder;
+
+        public AnswerAdapter(QuizQuestion question, QuestionViewHolder questionViewHolder) {
+            this.question = question;
+            this.questionViewHolder = questionViewHolder;
+        }
+
+        @NonNull
+        @Override
+        public AnswerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new AnswerViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.quiz_edit_answer_list_item, parent, false));
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull AnswerViewHolder holder, final int position) {
+            holder.bind(question.answers.get(position), this);
+        }
+
+        @Override
+        public int getItemCount() {
+            return question.answers.size();
+        }
+
+        public void removeAnswer(QuizAnswer answer) {
+            questionViewHolder.removeAnswer(answer);
+            notifyDataSetChanged();
+        }
+    }
+
+    private static class AnswerViewHolder extends RecyclerView.ViewHolder {
+        private TextListener listener;
+
+        public AnswerViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+
+        public void bind(final QuizAnswer answer, final AnswerAdapter answerAdapter) {
+            CheckBox checkBox = itemView.findViewById(R.id.answer_list_item_correct);
+            TextView textView = itemView.findViewById(R.id.answer_list_item_answer_text);
+
+            if (listener == null) {
+                listener = new TextListener(answer);
+                textView.addTextChangedListener(listener);
+            }
+
+            listener.setAnswer(answer);
+
+            itemView.findViewById(R.id.answer_list_item_delete).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    answerAdapter.removeAnswer(answer);
+                }
+            });
+
+            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    answer.correct = isChecked;
+                }
+            });
+
+            checkBox.setChecked(answer.correct);
+            textView.setText(answer.text);
+        }
+
+        private static class TextListener implements TextWatcher {
+
+            private QuizAnswer answer;
+
+            public TextListener(QuizAnswer answer) {
+                this.answer = answer;
+            }
+
+            public void setAnswer(QuizAnswer answer) {
+                this.answer = answer;
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                answer.text = s.toString();
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        }
+    }
+
+    private class QuestionAdapter extends RecyclerView.Adapter<QuestionViewHolder> {
+        Map<QuizQuestion, Boolean> expanded = new HashMap<>();
+
+        @NonNull
+        @Override
+        public QuestionViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            return new QuestionViewHolder(LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.quiz_edit_create_question, parent, false));
+
+        }
+
+        @Override
+        public void onBindViewHolder(@NonNull QuestionViewHolder holder, final int position) {
+            final QuizQuestion question = quiz.questions.get(position);
+            Boolean isExpanded = expanded.get(question);
+            if (isExpanded == null) {
+                isExpanded = false;
+            }
+
+            holder.setQuestion(question, isExpanded);
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Boolean cur = expanded.get(question);
+                    if (cur == null) {
+                        cur = false;
+                    }
+                    expanded.put(question, !cur);
+                    notifyItemChanged(position);
+                }
+            });
+        }
+
+        @Override
+        public int getItemCount() {
+            return quiz.questions.size();
+        }
+    }
+
+    private class QuestionViewHolder extends RecyclerView.ViewHolder {
+        private QuizQuestion question;
+        private TextView questionDetails;
+        private QuestionViewHolder.TextListener listener;
+        private TextView questionTitle;
+
+        public QuestionViewHolder(@NonNull View itemView) {
+            super(itemView);
+        }
+
+        public void setQuestion(final QuizQuestion question, boolean expanded) {
+            this.question = question;
+
+            RecyclerView answersList = itemView.findViewById(R.id.create_question_answer_list);
+            questionTitle = itemView.findViewById(R.id.create_question_title);
+            EditText questionText = itemView.findViewById(R.id.create_question_question_text);
+            questionDetails = itemView.findViewById(R.id.create_question_subtitle);
+
+            final AnswerAdapter adapter = new AnswerAdapter(question, this);
+
+            if (listener == null) {
+                listener = new QuestionViewHolder.TextListener(question);
+                questionText.addTextChangedListener(listener);
+            }
+            listener.setQuestion(question);
+
+            answersList.setAdapter(adapter);
+            answersList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+            if (expanded) {
+                itemView.findViewById(R.id.create_questions_question_details).setVisibility(View.VISIBLE);
+            } else {
+                itemView.findViewById(R.id.create_questions_question_details).setVisibility(View.GONE);
+            }
+
+            itemView.findViewById(R.id.create_question_add_answer).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    createAnswer();
+                    adapter.notifyDataSetChanged();
+                }
+            });
+
+            itemView.findViewById(R.id.create_question_delete_question).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(getString(R.string.delete_question_confirm_title));
+                    builder.setMessage(getString(R.string.delete_question_confirm));
+                    builder.setPositiveButton(getString(R.string.delete_question_delete_button), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            deleteQuestion(question);
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton(getString(R.string.delete_question_cancel_button), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                }
+            });
+
+
+            questionTitle.setText(question.text);
+            questionText.setText(question.text);
+
+            updateAnswerDetails();
+        }
+
+        private void updateAnswerDetails() {
+            int count = question.answers.size();
+            questionDetails.setText(getResources().getQuantityString(R.plurals.contains_x_answers, count, count));
+        }
+
+        private void createAnswer() {
+            question.answers.add(new QuizAnswer());
+            System.out.println(new Gson().toJson(quiz));
+            updateAnswerDetails();
+        }
+
+        private void removeAnswer(QuizAnswer answer) {
+            question.answers.remove(answer);
+            System.out.println(new Gson().toJson(quiz));
+            updateAnswerDetails();
+        }
+
+        private class TextListener implements TextWatcher {
+
+            private QuizQuestion question;
+
+            public TextListener(QuizQuestion question) {
+                this.question = question;
+            }
+
+            public void setQuestion(QuizQuestion question) {
+                this.question = question;
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String title = s.toString();
+                question.text = title;
+                questionTitle.setText(title);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        }
+
+    }
+
+}

@@ -2,16 +2,15 @@ package me.srikavin.quiz.model;
 
 import android.media.Image;
 
-import java.util.UUID;
+import com.google.gson.annotations.Expose;
 
 public class UserProfile {
-    private UUID uuid;
+    @Expose
+    private String id;
+    @Expose
     private Image avatar;
+    @Expose
     private String username;
-
-    public UUID getUuid() {
-        return uuid;
-    }
 
     public Image getAvatar() {
         return avatar;
