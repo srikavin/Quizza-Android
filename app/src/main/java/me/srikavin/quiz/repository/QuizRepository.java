@@ -7,8 +7,12 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import me.srikavin.quiz.model.Quiz;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
@@ -29,8 +33,8 @@ public enum QuizRepository {
         internetQuizRepository.getQuizzes(handler);
     }
 
-    public void getDrafts(Context context, QuizResponseHandler handler) {
-        internetQuizRepository.getDrafts(context, handler);
+    public void getOwned(Context context, QuizResponseHandler handler) {
+        internetQuizRepository.getOwned(context, handler);
     }
 
     public void createQuiz(Quiz quiz, QuizResponseHandler handler) {
@@ -39,6 +43,10 @@ public enum QuizRepository {
 
     public void editQuiz(String id, Quiz quiz, QuizResponseHandler handler) {
         internetQuizRepository.editQuiz(id, quiz, handler);
+    }
+
+    public void deleteQuiz(Quiz quiz, QuizResponseHandler handler) {
+        internetQuizRepository.deleteQuiz(quiz, handler);
     }
 
     public enum ErrorCodes {
@@ -65,21 +73,23 @@ public enum QuizRepository {
     interface QuizService {
         void getQuizzes(QuizResponseHandler handler);
 
-        void getDrafts(Context context, QuizResponseHandler handler);
+        void getOwned(Context context, QuizResponseHandler handler);
 
         void getQuizByID(String id, QuizResponseHandler handler);
 
         void createQuiz(Quiz quiz, QuizResponseHandler handler);
 
         void editQuiz(String id, Quiz quiz, QuizResponseHandler handler);
+
+        void deleteQuiz(Quiz quiz, QuizResponseHandler handler);
     }
 
     public abstract static class QuizResponseHandler extends Repository.ResponseHandler<ErrorCodes, Quiz> {
-        public void handle(Quiz user) {
+        public void handle(Quiz quiz) {
             //By default, do nothing
         }
 
-        public void handleMultiple(List<Quiz> users) {
+        public void handleMultiple(List<Quiz> quizzes) {
             //By default, do nothing
         }
 
@@ -116,8 +126,9 @@ public enum QuizRepository {
         }
 
         @Override
-        public void getDrafts(Context context, QuizResponseHandler handler) {
+        public void getOwned(Context context, QuizResponseHandler handler) {
             ensureAuthorized(context);
+            quizService.getOwned().enqueue(new DefaultMultiRetrofitCallbackHandler(handler));
         }
 
         @Override
@@ -135,12 +146,27 @@ public enum QuizRepository {
             quizService.editQuiz(id, quiz).enqueue(new DefaultRetrofitCallbackHandler(handler));
         }
 
+        @Override
+        public void deleteQuiz(Quiz quiz, final QuizResponseHandler handler) {
+            quizService.deleteQuiz(quiz.id).enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    handler.handle(null);
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    forwardNetworkError(handler);
+                }
+            });
+        }
+
         interface InternetQuizService {
             @GET("quizzes/")
             Call<List<Quiz>> getQuizzes();
 
-            @GET("quizzes/drafts")
-            Call<List<Quiz>> getDrafts();
+            @GET("quizzes/owned")
+            Call<List<Quiz>> getOwned();
 
             @GET("quizzes/{id}")
             Call<Quiz> getQuizByID(@Path("id") String id);
@@ -148,6 +174,8 @@ public enum QuizRepository {
             @POST("quizzes/")
             Call<Quiz> createQuiz(@Body Quiz quiz);
 
+            @DELETE("quizzes/{id}")
+            Call<ResponseBody> deleteQuiz(@Path("id") String id);
 
             @PUT("quizzes/{id}")
             Call<Quiz> editQuiz(@Path("id") String id, @Body Quiz quiz);

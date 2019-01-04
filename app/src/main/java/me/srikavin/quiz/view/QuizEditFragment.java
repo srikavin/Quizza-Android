@@ -26,6 +26,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -38,10 +39,14 @@ import me.srikavin.quiz.viewmodel.QuizEditViewModel;
 
 public class QuizEditFragment extends Fragment {
 
+    private LiveData<Quiz> quizLiveData;
     private Quiz quiz;
     private QuizEditViewModel mViewModel;
     private QuestionAdapter questionAdapter;
     private View noQuestionOverlay;
+    private EditText quizTitle;
+    private RecyclerView questions;
+
 
     public static QuizEditFragment newInstance(@NonNull Mode mode, @Nullable String quizId) {
         Bundle bundle = new Bundle();
@@ -67,6 +72,13 @@ public class QuizEditFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(QuizEditViewModel.class);
 
+        questions = getView().findViewById(R.id.quiz_edit_questions_list);
+        Toolbar toolbar = getView().findViewById(R.id.create_toolbar);
+        FloatingActionButton createQuestionFab = getView().findViewById(R.id.create_question_fab);
+        AppCompatButton createQuestionButton = getView().findViewById(R.id.create_question_button);
+        quizTitle = getView().findViewById(R.id.quiz_edit_quiz_title);
+        noQuestionOverlay = getView().findViewById(R.id.quiz_edit_no_questions_state);
+
         assert getArguments() != null;
 
         Mode mode = (Mode) getArguments().get("mode");
@@ -76,54 +88,74 @@ public class QuizEditFragment extends Fragment {
 
         switch (mode) {
             case CREATE:
-                quiz = mViewModel.createQuiz();
+                quizLiveData = mViewModel.createQuiz();
                 break;
             case EDIT:
-                // quiz = get quiz from repository
+                quizLiveData = mViewModel.editQuiz(id);
                 break;
         }
 
-        RecyclerView questions = getView().findViewById(R.id.quiz_edit_questions_list);
-        Toolbar toolbar = getView().findViewById(R.id.create_toolbar);
-        toolbar.inflateMenu(R.menu.quiz_edit_toolbar_menu);
-        toolbar.getMenu().findItem(R.id.quiz_edit_toolbar_save).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
+        quizLiveData.observe(this, new
+        class MenuItemListener implements MenuItem.OnMenuItemClickListener {
+            private void save() {
                 mViewModel.saveQuiz().observe(getViewLifecycleOwner(), new Observer<Quiz>() {
                     @Override
                     public void onChanged(Quiz quiz) {
                         if (quiz != null) {
-                            Toast.makeText(getContext(), getString(R.string.data_save_fail), Toast.LENGTH_SHORT).show();
-                        } else {
                             Toast.makeText(getContext(), getString(R.string.data_save_success), Toast.LENGTH_SHORT).show();
+                            getActivity().finish();
+                        } else {
+                            Toast.makeText(getContext(), getString(R.string.data_save_fail), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
+            }
+
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (item.getItemId() == R.id.quiz_edit_toolbar_publish) {
+                    // Verify user wants to publish publicly
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle(getString(R.string.edit_quiz_publish_title));
+                    builder.setMessage(getString(R.string.edit_quiz_publish_warning));
+                    builder.setPositiveButton(getString(R.string.edit_quiz_publish_confirm_text), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            quiz.draft = false;
+                            save();
+                            dialog.dismiss();
+                        }
+                    });
+                    builder.setNegativeButton(getString(R.string.edit_quiz_publish_cancel_text), new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    AlertDialog alert = builder.create();
+                    alert.show();
+                } else {
+                    save();
+                }
                 return true;
             }
         });
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.quiz_edit_toolbar_save:
-                        return true;
-                    case R.id.quiz_edit_toolbar_publish:
-                        return true;
-                }
-                return false;
-            }
-        });
 
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                return false;
-            }
-        });
 
-        FloatingActionButton createQuestionFab = getView().findViewById(R.id.create_question_fab);
-        AppCompatButton createQuestionButton = getView().findViewById(R.id.create_question_button);
+        toolbar.inflateMenu(R.menu.quiz_edit_toolbar_menu);
+
+
+        Observer<Quiz> () {
+            @Override
+            public void onChanged (Quiz quiz){
+                QuizEditFragment.this.quiz = quiz;
+                update(quiz);
+            }
+        }
+
+        MenuItemListener menuItemListener = new MenuItemListener();
+
+        toolbar.getMenu().findItem(R.id.quiz_edit_toolbar_save).setOnMenuItemClickListener(menuItemListener);
+        toolbar.getMenu().findItem(R.id.quiz_edit_toolbar_publish).setOnMenuItemClickListener(menuItemListener);
 
         createQuestionFab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -141,16 +173,6 @@ public class QuizEditFragment extends Fragment {
 
         toolbar.setTitle("Create Quiz");
 
-        questionAdapter = new QuestionAdapter();
-        questions.setAdapter(questionAdapter);
-        questions.setLayoutManager(new LinearLayoutManager(getContext()));
-
-        noQuestionOverlay = getView().findViewById(R.id.quiz_edit_no_questions_state);
-
-        EditText quizTitle = getView().findViewById(R.id.quiz_edit_quiz_title);
-
-        quizTitle.setText(quiz.title);
-
         quizTitle.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -167,6 +189,13 @@ public class QuizEditFragment extends Fragment {
             }
         });
 
+    }
+
+    private void update(Quiz quiz) {
+        quizTitle.setText(quiz.title);
+        questionAdapter = new QuestionAdapter();
+        questions.setAdapter(questionAdapter);
+        questions.setLayoutManager(new LinearLayoutManager(getContext()));
         updateNoQuestionOverlay();
     }
 

@@ -21,6 +21,9 @@ import me.srikavin.quiz.view.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity {
     public static String TAG = "QUIZ";
+    ProfileFragment profileFragment = new ProfileFragment();
+    BattleFragment battleFragment = new BattleFragment();
+    CreateFragment createFragment = new CreateFragment();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -28,9 +31,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         List<Fragment> possibleStates = new ArrayList<>();
-        possibleStates.add(new ProfileFragment());
-        possibleStates.add(new BattleFragment());
-        possibleStates.add(new CreateFragment());
+        possibleStates.add(profileFragment);
+        possibleStates.add(battleFragment);
+        possibleStates.add(createFragment);
 
         final ViewPager viewPager = findViewById(R.id.main_viewpager);
         viewPager.setAdapter(new SlidingPagerAdapter(getSupportFragmentManager(), possibleStates));

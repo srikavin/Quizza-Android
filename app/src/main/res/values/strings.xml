@@ -30,6 +30,10 @@
     <string name="error_network">An error occurred while communicating with the server.</string>
     <string name="error_server">A server-side error occurred. Try again later.</string>
     <string name="error_unknown">An unknown error occurred</string>
+    <string name="edit_quiz_publish_title">Publish Quiz</string>
+    <string name="edit_quiz_publish_warning">Are you sure you want to publish this quiz publicly?</string>
+    <string name="edit_quiz_publish_confirm_text">Publish Quiz</string>
+    <string name="edit_quiz_publish_cancel_text">Cancel</string>
     <plurals name="contains_x_questions">
         <item quantity="one">Contains %d question</item>
         <item quantity="other">Contains %d questions</item>
