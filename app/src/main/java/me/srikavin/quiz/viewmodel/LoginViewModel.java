@@ -37,6 +37,17 @@ public class LoginViewModel extends AndroidViewModel {
         return currentUser;
     }
 
+    public LiveData<Boolean> verifyAuth() {
+        MutableLiveData<Boolean> ret = new MutableLiveData<>();
+        AuthRepository.INSTANCE.verifyAuth(getApplication(), new AuthRepository.AuthResponseHandler() {
+            @Override
+            public void handleVerify(boolean result) {
+                ret.postValue(result);
+            }
+        });
+        return ret;
+    }
+
     private void loginAccount(String username, String password) {
         AuthRepository.INSTANCE.login(username, password, new AuthRepository.AuthResponseHandler() {
             @Override

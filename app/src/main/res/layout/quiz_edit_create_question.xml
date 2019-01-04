@@ -68,13 +68,17 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/create_question_answer_list"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="24dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/create_question_question_text" />
+                    app:layout_constraintTop_toBottomOf="@+id/create_question_question_text"
+                    tools:context=".view.QuizEditActivity"
+                    tools:itemCount="3"
+                    tools:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/quiz_edit_answer_list_item" />
 
                 <View
                     android:id="@+id/divider2"

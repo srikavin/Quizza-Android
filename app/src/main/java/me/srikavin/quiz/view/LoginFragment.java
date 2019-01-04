@@ -49,6 +49,16 @@ public class LoginFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         mViewModel = ViewModelProviders.of(this).get(LoginViewModel.class);
 
+        mViewModel.verifyAuth().observe(this,
+                verified -> getActivity().runOnUiThread(() -> {
+                    if (verified) {
+                        Toast.makeText(getActivity(), "Signed in with saved credentials", Toast.LENGTH_SHORT).show();
+                        continueToMain();
+                    } else {
+                        Toast.makeText(getActivity(), "Failed to sign in with saved credentials", Toast.LENGTH_SHORT).show();
+                    }
+                }));
+
         final TextInputLayout username = getView().findViewById(R.id.login_activity_username_view);
         final TextInputLayout password = getView().findViewById(R.id.login_activity_password_view);
         Button loginButton = getView().findViewById(R.id.login_activity_login_button);
@@ -125,7 +135,10 @@ public class LoginFragment extends Fragment {
         }
 
         Toast.makeText(getContext(), "Logged in successfully", Toast.LENGTH_SHORT).show();
-        System.out.println(wrapper.getData());
+        continueToMain();
+    }
+
+    private void continueToMain() {
         Intent intent = new Intent(getContext(), MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         intent.putExtra("auth", true);

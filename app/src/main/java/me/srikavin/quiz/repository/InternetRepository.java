@@ -60,7 +60,9 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
         }
 
         void setToken(String token) {
-            this.token = token;
+            if (token != null) {
+                this.token = token;
+            }
         }
     }
 

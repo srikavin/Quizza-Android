@@ -26,6 +26,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (!getIntent().getBooleanExtra("auth", false)) {
+            // Require login if not sent here by log-in activity
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            return;
+        }
         setContentView(R.layout.activity_main);
 
         List<Fragment> possibleStates = new ArrayList<>();
@@ -85,13 +92,6 @@ public class MainActivity extends AppCompatActivity {
         updateTitle(1);
         bottomNavigationView.setSelectedItemId(R.id.bottombaritem_battle);
         viewPager.setCurrentItem(1);
-
-        if (!getIntent().getBooleanExtra("auth", false)) {
-            // Require login if not sent here by log-in activity
-            Intent intent = new Intent(this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-        }
     }
 
     private void updateTitle(int page) {

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:paddingBottom="8dp">
 
     <EditText
@@ -15,6 +16,7 @@
         android:ems="10"
         android:hint="@string/edit_answer_hint"
         android:inputType="textCapSentences|textAutoCorrect|textAutoComplete|textMultiLine"
+        tools:text="Answer"
         app:layout_constraintEnd_toStartOf="@+id/answer_list_item_delete"
         app:layout_constraintStart_toEndOf="@+id/answer_list_item_correct"
         app:layout_constraintTop_toTopOf="parent" />
@@ -27,6 +29,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginBottom="8dp"
         android:tooltipText="@string/answer_check_correct_tooltip"
+        tools:checked="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

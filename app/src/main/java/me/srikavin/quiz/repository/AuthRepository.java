@@ -13,6 +13,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
 
 import static me.srikavin.quiz.MainActivity.TAG;
@@ -39,8 +40,8 @@ public enum AuthRepository {
         return localAuthRepository.getAuthToken(context);
     }
 
-    public boolean verifyAuth() {
-        return true;
+    public void verifyAuth(Context context, AuthResponseHandler handler) {
+        internetAuthRepository.verifyAuth(context, handler);
     }
 
     public enum ErrorCodes {
@@ -135,7 +136,9 @@ public enum AuthRepository {
             userService.verifyAuth().enqueue(new Callback<AuthUser>() {
                 @Override
                 public void onResponse(Call<AuthUser> call, Response<AuthUser> response) {
-                    handler.handleVerify(true);
+                    if (response.body() != null && response.body().isAuth()) {
+                        handler.handleVerify(true);
+                    }
                 }
 
                 @Override
@@ -152,7 +155,7 @@ public enum AuthRepository {
             @POST("auth/login")
             Call<AuthUser> login(@Body LoginInformation loginInformation);
 
-            @POST("auth/me")
+            @GET("auth/me")
             Call<AuthUser> verifyAuth();
         }
 
