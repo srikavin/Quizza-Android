@@ -95,7 +95,18 @@ public class QuizEditFragment extends Fragment {
                 break;
         }
 
-        quizLiveData.observe(this, new
+        quizLiveData.observe(this, new Observer<Quiz>() {
+            @Override
+            public void onChanged(Quiz quiz) {
+                QuizEditFragment.this.quiz = quiz;
+                update(quiz);
+            }
+        });
+
+
+        toolbar.inflateMenu(R.menu.quiz_edit_toolbar_menu);
+
+
         class MenuItemListener implements MenuItem.OnMenuItemClickListener {
             private void save() {
                 mViewModel.saveQuiz().observe(getViewLifecycleOwner(), new Observer<Quiz>() {
@@ -137,18 +148,6 @@ public class QuizEditFragment extends Fragment {
                     save();
                 }
                 return true;
-            }
-        });
-
-
-        toolbar.inflateMenu(R.menu.quiz_edit_toolbar_menu);
-
-
-        Observer<Quiz> () {
-            @Override
-            public void onChanged (Quiz quiz){
-                QuizEditFragment.this.quiz = quiz;
-                update(quiz);
             }
         }
 
