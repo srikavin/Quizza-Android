@@ -1,5 +1,7 @@
 package me.srikavin.quiz.view;
 
+import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +19,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import me.srikavin.quiz.R;
+import me.srikavin.quiz.view.game.GameActivity;
 import me.srikavin.quiz.viewmodel.QuizDetailViewModel;
 
 public class QuizDetailFragment extends Fragment {
@@ -47,22 +50,34 @@ public class QuizDetailFragment extends Fragment {
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mViewModel = ViewModelProviders.of(this).get(QuizDetailViewModel.class);
-        // TODO: Use the ViewModel
 
         final CollapsingToolbarLayout collapsingToolbar = getView().findViewById(R.id.collapsing_toolbar);
         collapsingToolbar.setTitle("title testing");
-        Picasso.get().load("https://images.pexels.com/photos/935785/pexels-photo-935785.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260").into((ImageView) getView().findViewById(R.id.image));
+        Picasso.get().load((String) null)
+                .placeholder(new ColorDrawable(getResources().getColor(R.color.colorSecondaryLight, null)))
+                .into((ImageView) getView().findViewById(R.id.image));
+
+        assert getArguments() != null;
 
         String id = getArguments().getString("id");
-//        assert id != null;
+        assert id != null;
 
 
         mViewModel.getQuizByID(id).observe(this, quiz -> {
             if (quiz != null) {
                 collapsingToolbar.setTitle(quiz.title);
+                if (quiz.coverImageUrl != null) {
+                    Picasso.get().load(quiz.coverImageUrl).into((ImageView) getView().findViewById(R.id.image));
+                }
             } else {
                 Toast.makeText(getContext(), R.string.data_load_fail, Toast.LENGTH_LONG).show();
             }
+        });
+
+        getView().findViewById(R.id.quiz_detail_battle_fab).setOnClickListener((v) -> {
+            Intent intent = new Intent(getActivity(), GameActivity.class);
+            intent.putExtra("id", id);
+            getActivity().startActivity(intent);
         });
     }
 

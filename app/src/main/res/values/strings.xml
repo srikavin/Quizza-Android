@@ -48,6 +48,7 @@
     <string name="edit_quiz_title_hint">Quiz Title</string>
     <string name="create_quiz_draft">Draft</string>
     <string name="create_quiz_published">Published</string>
+    <string name="game_position">%1$d / %2$d</string>
     <plurals name="contains_x_questions">
         <item quantity="one">Contains %d question</item>
         <item quantity="other">Contains %d questions</item>

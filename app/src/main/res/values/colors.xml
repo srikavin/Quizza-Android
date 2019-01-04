@@ -10,4 +10,11 @@
     <color name="colorLoginPanelLight">#f5f5f5</color>
     <color name="colorLoginPanelDark">#f5f5f5</color>
     <color name="colorLoginPanelBorder">#e0e0e0</color>
+
+    <color name="game_answer_text">@color/colorSecondaryDark</color>
+    <color name="game_answer_background">#ffffff</color>
+    <color name="game_answer_correct_background">#1b5e20</color>
+    <color name="game_answer_correct_text">#ffffff</color>
+    <color name="game_answer_incorrect_background">#d32f2f</color>
+    <color name="game_answer_incorrect_text">#ffffff</color>
 </resources>
