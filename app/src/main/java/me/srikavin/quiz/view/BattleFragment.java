@@ -19,7 +19,6 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -97,25 +96,17 @@ public class BattleFragment extends Fragment {
         adapter.setQuizzes(testing);
 
         mViewModel = ViewModelProviders.of(this).get(BattleViewModel.class);
-        mViewModel.getQuizzes().observe(this, new Observer<List<Quiz>>() {
-            @Override
-            public void onChanged(@Nullable List<Quiz> quizzes) {
-                if (quizzes != null) {
-                    adapter.setQuizzes(quizzes);
-                } else {
-                    Toast.makeText(getContext(), R.string.data_load_fail, Toast.LENGTH_LONG).show();
-                }
-                swipeRefresh.setRefreshing(false);
+        mViewModel.getQuizzes().observe(this, quizzes -> {
+            if (quizzes != null) {
+                adapter.setQuizzes(quizzes);
+            } else {
+                Toast.makeText(getContext(), R.string.data_load_fail, Toast.LENGTH_LONG).show();
             }
+            swipeRefresh.setRefreshing(false);
         });
 
         swipeRefresh = getView().findViewById(R.id.battle_swipe_refresh);
-        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                updateQuizzes();
-            }
-        });
+        swipeRefresh.setOnRefreshListener(this::updateQuizzes);
         getContext();
     }
 
@@ -146,17 +137,14 @@ public class BattleFragment extends Fragment {
         @Override
         public void onBindViewHolder(@NonNull final QuizListViewHolder holder, final int position) {
             holder.setQuiz(quizzes.get(position));
-            holder.container.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Quiz quiz = quizzes.get(position);
-                    Toast.makeText(holder.container.getContext(), quizzes.get(position).title, Toast.LENGTH_LONG).show();
+            holder.container.setOnClickListener(v -> {
+                Quiz quiz = quizzes.get(position);
+                Toast.makeText(holder.container.getContext(), quizzes.get(position).title, Toast.LENGTH_LONG).show();
 
 
-                    Intent intent = new Intent(context, QuizDetail.class);
-                    intent.putExtra("id", quiz.id);
-                    context.startActivity(intent);
-                }
+                Intent intent = new Intent(context, QuizDetail.class);
+                intent.putExtra("id", quiz.id);
+                context.startActivity(intent);
             });
         }
 

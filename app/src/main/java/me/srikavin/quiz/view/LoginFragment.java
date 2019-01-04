@@ -20,7 +20,6 @@ import com.google.android.material.textfield.TextInputLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import me.srikavin.quiz.MainActivity;
 import me.srikavin.quiz.R;
@@ -66,46 +65,27 @@ public class LoginFragment extends Fragment {
 
         SignInButton signInButton = getView().findViewById(R.id.google_sign_in);
 
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Handle google sign-in
-                if (v.getId() == R.id.google_sign_in) {
-                    Intent signInIntent = googleSignInClient.getSignInIntent();
-                    startActivityForResult(signInIntent, GOOGLE_LOGIN_RC);
-                }
+        signInButton.setOnClickListener(v -> {
+            //Handle google sign-in
+            if (v.getId() == R.id.google_sign_in) {
+                Intent signInIntent = googleSignInClient.getSignInIntent();
+                startActivityForResult(signInIntent, GOOGLE_LOGIN_RC);
             }
         });
 
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String usernameString = username.getEditText().getText().toString();
-                String passwordString = password.getEditText().getText().toString();
-                mViewModel.login(usernameString, passwordString)
-                        .observe(getViewLifecycleOwner(), new Observer<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>>() {
-                            @Override
-                            public void onChanged(ErrorWrapper<AuthUser, AuthRepository.ErrorCodes> authWrapper) {
-                                handleAuthResult(authWrapper);
-                            }
-                        });
-            }
+        loginButton.setOnClickListener(v -> {
+            String usernameString = username.getEditText().getText().toString();
+            String passwordString = password.getEditText().getText().toString();
+            mViewModel.login(usernameString, passwordString)
+                    .observe(getViewLifecycleOwner(), LoginFragment.this::handleAuthResult);
         });
 
-        registerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String usernameString = username.getEditText().getText().toString();
-                String passwordString = password.getEditText().getText().toString();
-                mViewModel.register(usernameString, passwordString)
-                        .observe(getViewLifecycleOwner(), new Observer<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>>() {
-                            @Override
-                            public void onChanged(ErrorWrapper<AuthUser, AuthRepository.ErrorCodes> authWrapper) {
-                                handleAuthResult(authWrapper);
-                            }
-                        });
-            }
+        registerButton.setOnClickListener(v -> {
+            String usernameString = username.getEditText().getText().toString();
+            String passwordString = password.getEditText().getText().toString();
+            mViewModel.register(usernameString, passwordString)
+                    .observe(getViewLifecycleOwner(), this::handleAuthResult);
         });
     }
 

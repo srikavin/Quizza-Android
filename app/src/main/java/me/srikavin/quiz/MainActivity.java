@@ -2,14 +2,12 @@ package me.srikavin.quiz;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -40,25 +38,22 @@ public class MainActivity extends AppCompatActivity {
 
         final BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_bar);
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.bottombaritem_profile:
-                        updateTitle(0);
-                        viewPager.setCurrentItem(0);
-                        break;
-                    case R.id.bottombaritem_battle:
-                        updateTitle(1);
-                        viewPager.setCurrentItem(1);
-                        break;
-                    case R.id.bottombaritem_create:
-                        updateTitle(2);
-                        viewPager.setCurrentItem(2);
-                        break;
-                }
-                return true;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.bottombaritem_profile:
+                    updateTitle(0);
+                    viewPager.setCurrentItem(0);
+                    break;
+                case R.id.bottombaritem_battle:
+                    updateTitle(1);
+                    viewPager.setCurrentItem(1);
+                    break;
+                case R.id.bottombaritem_create:
+                    updateTitle(2);
+                    viewPager.setCurrentItem(2);
+                    break;
             }
+            return true;
         });
 
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {

@@ -16,7 +16,7 @@ public class QuizDetailViewModel extends ViewModel {
 
     public LiveData<Quiz> getQuizByID(String id) {
         if (!quizzes.containsKey(id)) {
-            quizzes.put(id, new MutableLiveData<Quiz>());
+            quizzes.put(id, new MutableLiveData<>());
             updateQuiz(id);
         }
         return quizzes.get(id);

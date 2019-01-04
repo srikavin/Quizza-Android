@@ -1,6 +1,5 @@
 package me.srikavin.quiz.view;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -9,7 +8,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -27,7 +25,6 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -95,12 +92,9 @@ public class QuizEditFragment extends Fragment {
                 break;
         }
 
-        quizLiveData.observe(this, new Observer<Quiz>() {
-            @Override
-            public void onChanged(Quiz quiz) {
-                QuizEditFragment.this.quiz = quiz;
-                update(quiz);
-            }
+        quizLiveData.observe(this, quiz -> {
+            QuizEditFragment.this.quiz = quiz;
+            update(quiz);
         });
 
 
@@ -109,15 +103,12 @@ public class QuizEditFragment extends Fragment {
 
         class MenuItemListener implements MenuItem.OnMenuItemClickListener {
             private void save() {
-                mViewModel.saveQuiz().observe(getViewLifecycleOwner(), new Observer<Quiz>() {
-                    @Override
-                    public void onChanged(Quiz quiz) {
-                        if (quiz != null) {
-                            Toast.makeText(getContext(), getString(R.string.data_save_success), Toast.LENGTH_SHORT).show();
-                            getActivity().finish();
-                        } else {
-                            Toast.makeText(getContext(), getString(R.string.data_save_fail), Toast.LENGTH_SHORT).show();
-                        }
+                mViewModel.saveQuiz().observe(getViewLifecycleOwner(), quiz -> {
+                    if (quiz != null) {
+                        Toast.makeText(getContext(), getString(R.string.data_save_success), Toast.LENGTH_SHORT).show();
+                        getActivity().finish();
+                    } else {
+                        Toast.makeText(getContext(), getString(R.string.data_save_fail), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -129,18 +120,12 @@ public class QuizEditFragment extends Fragment {
                     AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
                     builder.setTitle(getString(R.string.edit_quiz_publish_title));
                     builder.setMessage(getString(R.string.edit_quiz_publish_warning));
-                    builder.setPositiveButton(getString(R.string.edit_quiz_publish_confirm_text), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            quiz.draft = false;
-                            save();
-                            dialog.dismiss();
-                        }
+                    builder.setPositiveButton(getString(R.string.edit_quiz_publish_confirm_text), (dialog, id12) -> {
+                        quiz.draft = false;
+                        save();
+                        dialog.dismiss();
                     });
-                    builder.setNegativeButton(getString(R.string.edit_quiz_publish_cancel_text), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    });
+                    builder.setNegativeButton(getString(R.string.edit_quiz_publish_cancel_text), (dialog, id1) -> dialog.dismiss());
 
                     AlertDialog alert = builder.create();
                     alert.show();
@@ -156,19 +141,9 @@ public class QuizEditFragment extends Fragment {
         toolbar.getMenu().findItem(R.id.quiz_edit_toolbar_save).setOnMenuItemClickListener(menuItemListener);
         toolbar.getMenu().findItem(R.id.quiz_edit_toolbar_publish).setOnMenuItemClickListener(menuItemListener);
 
-        createQuestionFab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createQuestion();
-            }
-        });
+        createQuestionFab.setOnClickListener(v -> createQuestion());
 
-        createQuestionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createQuestion();
-            }
-        });
+        createQuestionButton.setOnClickListener(v -> createQuestion());
 
         toolbar.setTitle("Create Quiz");
 
@@ -271,19 +246,9 @@ public class QuizEditFragment extends Fragment {
 
             listener.setAnswer(answer);
 
-            itemView.findViewById(R.id.answer_list_item_delete).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    answerAdapter.removeAnswer(answer);
-                }
-            });
+            itemView.findViewById(R.id.answer_list_item_delete).setOnClickListener(v -> answerAdapter.removeAnswer(answer));
 
-            checkBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    answer.correct = isChecked;
-                }
-            });
+            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> answer.correct = isChecked);
 
             checkBox.setChecked(answer.correct);
             textView.setText(answer.text);
@@ -339,16 +304,13 @@ public class QuizEditFragment extends Fragment {
             }
 
             holder.setQuestion(question, isExpanded);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Boolean cur = expanded.get(question);
-                    if (cur == null) {
-                        cur = false;
-                    }
-                    expanded.put(question, !cur);
-                    notifyItemChanged(position);
+            holder.itemView.setOnClickListener(v -> {
+                Boolean cur = expanded.get(question);
+                if (cur == null) {
+                    cur = false;
                 }
+                expanded.put(question, !cur);
+                notifyItemChanged(position);
             });
         }
 
@@ -393,35 +355,23 @@ public class QuizEditFragment extends Fragment {
                 itemView.findViewById(R.id.create_questions_question_details).setVisibility(View.GONE);
             }
 
-            itemView.findViewById(R.id.create_question_add_answer).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    createAnswer();
-                    adapter.notifyDataSetChanged();
-                }
+            itemView.findViewById(R.id.create_question_add_answer).setOnClickListener(v -> {
+                createAnswer();
+                adapter.notifyDataSetChanged();
             });
 
-            itemView.findViewById(R.id.create_question_delete_question).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle(getString(R.string.delete_question_confirm_title));
-                    builder.setMessage(getString(R.string.delete_question_confirm));
-                    builder.setPositiveButton(getString(R.string.delete_question_delete_button), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            deleteQuestion(question);
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.setNegativeButton(getString(R.string.delete_question_cancel_button), new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    });
+            itemView.findViewById(R.id.create_question_delete_question).setOnClickListener(v -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(getString(R.string.delete_question_confirm_title));
+                builder.setMessage(getString(R.string.delete_question_confirm));
+                builder.setPositiveButton(getString(R.string.delete_question_delete_button), (dialog, id) -> {
+                    deleteQuestion(question);
+                    dialog.dismiss();
+                });
+                builder.setNegativeButton(getString(R.string.delete_question_cancel_button), (dialog, id) -> dialog.dismiss());
 
-                    AlertDialog alert = builder.create();
-                    alert.show();
-                }
+                AlertDialog alert = builder.create();
+                alert.show();
             });
 
 

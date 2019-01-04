@@ -1,6 +1,5 @@
 package me.srikavin.quiz.view;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -17,7 +16,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,19 +42,9 @@ public class CreateFragment extends Fragment {
 
         viewModel = ViewModelProviders.of(this).get(CreateViewModel.class);
 
-        getView().findViewById(R.id.create_question_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createNewQuiz();
-            }
-        });
+        getView().findViewById(R.id.create_question_button).setOnClickListener(v -> createNewQuiz());
 
-        getView().findViewById(R.id.create_fab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                createNewQuiz();
-            }
-        });
+        getView().findViewById(R.id.create_fab).setOnClickListener(v -> createNewQuiz());
 
         final QuizAdapter adapter = new QuizAdapter();
 
@@ -64,13 +52,10 @@ public class CreateFragment extends Fragment {
         draftList.setLayoutManager(new LinearLayoutManager(this.getContext()));
         draftList.setAdapter(adapter);
 
-        viewModel.getOwnedQuizzes().observe(this, new Observer<List<Quiz>>() {
-            @Override
-            public void onChanged(List<Quiz> quizzes) {
-                updateNoQuizOverlay(quizzes);
-                adapter.setData(quizzes);
-                adapter.notifyDataSetChanged();
-            }
+        viewModel.getOwnedQuizzes().observe(this, quizzes -> {
+            updateNoQuizOverlay(quizzes);
+            adapter.setData(quizzes);
+            adapter.notifyDataSetChanged();
         });
         noQuizOverlay = getView().findViewById(R.id.create_no_quiz_overlay);
     }
@@ -131,16 +116,13 @@ public class CreateFragment extends Fragment {
             }
 
             holder.setQuiz(quiz, isExpanded);
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Boolean cur = expanded.get(quiz);
-                    if (cur == null) {
-                        cur = false;
-                    }
-                    expanded.put(quiz, !cur);
-                    notifyItemChanged(position);
+            holder.itemView.setOnClickListener(v -> {
+                Boolean cur = expanded.get(quiz);
+                if (cur == null) {
+                    cur = false;
                 }
+                expanded.put(quiz, !cur);
+                notifyItemChanged(position);
             });
         }
 
@@ -182,34 +164,20 @@ public class CreateFragment extends Fragment {
                 itemView.findViewById(R.id.create_quiz_details).setVisibility(View.GONE);
             }
 
-            itemView.findViewById(R.id.create_quiz_delete_quiz).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle(getString(R.string.delete_question_confirm_title));
-                    builder.setMessage(getString(R.string.delete_question_confirm));
-                    builder.setPositiveButton("Delete Quiz", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            deleteQuiz(quiz);
-                            dialog.dismiss();
-                        }
-                    });
-                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.dismiss();
-                        }
-                    });
+            itemView.findViewById(R.id.create_quiz_delete_quiz).setOnClickListener(v -> {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle(getString(R.string.delete_question_confirm_title));
+                builder.setMessage(getString(R.string.delete_question_confirm));
+                builder.setPositiveButton("Delete Quiz", (dialog, id) -> {
+                    deleteQuiz(quiz);
+                    dialog.dismiss();
+                });
+                builder.setNegativeButton("Cancel", (dialog, id) -> dialog.dismiss());
 
-                    AlertDialog alert = builder.create();
-                    alert.show();
-                }
+                AlertDialog alert = builder.create();
+                alert.show();
             });
-            itemView.findViewById(R.id.create_quiz_edit_quiz).setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    editQuiz(quiz);
-                }
-            });
+            itemView.findViewById(R.id.create_quiz_edit_quiz).setOnClickListener(v -> editQuiz(quiz));
         }
     }
 }

@@ -15,10 +15,8 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import me.srikavin.quiz.R;
-import me.srikavin.quiz.model.Quiz;
 import me.srikavin.quiz.viewmodel.QuizDetailViewModel;
 
 public class QuizDetailFragment extends Fragment {
@@ -59,14 +57,11 @@ public class QuizDetailFragment extends Fragment {
 //        assert id != null;
 
 
-        mViewModel.getQuizByID(id).observe(this, new Observer<Quiz>() {
-            @Override
-            public void onChanged(Quiz quiz) {
-                if (quiz != null) {
-                    collapsingToolbar.setTitle(quiz.title);
-                } else {
-                    Toast.makeText(getContext(), R.string.data_load_fail, Toast.LENGTH_LONG).show();
-                }
+        mViewModel.getQuizByID(id).observe(this, quiz -> {
+            if (quiz != null) {
+                collapsingToolbar.setTitle(quiz.title);
+            } else {
+                Toast.makeText(getContext(), R.string.data_load_fail, Toast.LENGTH_LONG).show();
             }
         });
     }
