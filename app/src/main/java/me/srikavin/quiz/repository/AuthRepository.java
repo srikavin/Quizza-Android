@@ -10,6 +10,8 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import me.srikavin.quiz.model.AuthUser;
 import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.POST;
 
@@ -37,6 +39,9 @@ public enum AuthRepository {
         return localAuthRepository.getAuthToken(context);
     }
 
+    public boolean verifyAuth() {
+        return true;
+    }
 
     public enum ErrorCodes {
         UNKNOWN_ERROR(0),
@@ -67,6 +72,8 @@ public enum AuthRepository {
         void register(String username, String password, AuthResponseHandler handler);
 
         void login(String username, String password, AuthResponseHandler handler);
+
+        void verifyAuth(Context context, AuthResponseHandler handler);
     }
 
     public abstract static class AuthResponseHandler extends Repository.ResponseHandler<ErrorCodes, AuthUser> {
@@ -83,6 +90,10 @@ public enum AuthRepository {
             for (ErrorCodes e : errors) {
                 Log.w(TAG, "Ignored error code: " + e.name());
             }
+        }
+
+        public void handleVerify(boolean result) {
+            //By default, do nothing
         }
     }
 
@@ -118,12 +129,31 @@ public enum AuthRepository {
                     .enqueue(new DefaultRetrofitCallbackHandler(handler));
         }
 
+        @Override
+        public void verifyAuth(Context context, final AuthResponseHandler handler) {
+            ensureAuthorized(context);
+            userService.verifyAuth().enqueue(new Callback<AuthUser>() {
+                @Override
+                public void onResponse(Call<AuthUser> call, Response<AuthUser> response) {
+                    handler.handleVerify(true);
+                }
+
+                @Override
+                public void onFailure(Call<AuthUser> call, Throwable t) {
+                    handler.handleVerify(false);
+                }
+            });
+        }
+
         interface InternetUserService {
             @POST("auth/register")
             Call<AuthUser> register(@Body LoginInformation loginInformation);
 
             @POST("auth/login")
             Call<AuthUser> login(@Body LoginInformation loginInformation);
+
+            @POST("auth/me")
+            Call<AuthUser> verifyAuth();
         }
 
         static class LoginInformation {
