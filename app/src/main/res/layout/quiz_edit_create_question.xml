@@ -29,7 +29,7 @@
                 android:ellipsize="end"
                 android:maxLines="4"
                 android:scrollHorizontally="false"
-                android:text="How many FBLA competitions exist?"
+                tools:text="How many FBLA competitions exist?"
                 android:textAppearance="@android:style/TextAppearance.Material.Headline"
                 android:textSize="20sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -41,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
-                android:text="Contains 2 answers"
+                tools:text="Contains 2 answers"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/create_question_title" />
 
@@ -94,7 +94,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:text="Add Answer"
+                    android:text="@string/edit_quiz_create_answer_text"
                     android:textColor="@color/colorSecondary"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/divider2" />
@@ -106,7 +106,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="24dp"
                     android:backgroundTint="#b71c1c"
-                    android:text="Delete Question"
+                    android:text="@string/edit_quiz_delete_question_text"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/divider2" />
 
@@ -118,7 +118,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="24dp"
                     android:ems="10"
-                    android:hint="Question"
+                    android:hint="@string/edit_quiz_question_hint"
                     android:inputType="textCapSentences|textAutoCorrect|textAutoComplete|textMultiLine"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

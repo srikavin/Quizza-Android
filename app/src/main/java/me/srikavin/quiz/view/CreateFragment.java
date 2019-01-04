@@ -149,10 +149,10 @@ public class CreateFragment extends Fragment {
 
             quizTitle.setText(quiz.title);
             if (quiz.draft) {
-                quizStatus.setText("Draft");
+                quizStatus.setText(getString(R.string.create_quiz_draft));
                 quizStatus.setTextColor(getResources().getColor(R.color.colorSecondaryDark, null));
             } else {
-                quizStatus.setText("Published");
+                quizStatus.setText(getString(R.string.create_quiz_published));
                 quizStatus.setTextColor(getResources().getColor(R.color.colorPrimary, null));
             }
             int questions = quiz.questions.size();

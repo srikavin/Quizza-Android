@@ -13,7 +13,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:ems="10"
-        android:hint="Answer"
+        android:hint="@string/edit_answer_hint"
         android:inputType="textCapSentences|textAutoCorrect|textAutoComplete|textMultiLine"
         app:layout_constraintEnd_toStartOf="@+id/answer_list_item_delete"
         app:layout_constraintStart_toEndOf="@+id/answer_list_item_correct"

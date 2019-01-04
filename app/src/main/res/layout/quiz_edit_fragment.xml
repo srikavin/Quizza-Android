@@ -42,7 +42,7 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:ems="10"
-        android:hint="Quiz Title"
+        android:hint="@string/edit_quiz_title_hint"
         android:inputType="textPersonName"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
