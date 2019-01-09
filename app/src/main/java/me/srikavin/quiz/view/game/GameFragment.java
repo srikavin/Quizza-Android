@@ -2,7 +2,6 @@ package me.srikavin.quiz.view.game;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,8 +14,8 @@ import android.widget.Toast;
 import com.github.jinatonic.confetti.CommonConfetti;
 
 import java.text.MessageFormat;
-import java.util.Collections;
-import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import androidx.annotation.NonNull;
@@ -25,11 +24,8 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import java9.util.function.BiConsumer;
-import java9.util.stream.StreamSupport;
 import me.srikavin.quiz.MainActivity;
 import me.srikavin.quiz.R;
-import me.srikavin.quiz.model.QuizAnswer;
 import me.srikavin.quiz.model.QuizGameState;
 import me.srikavin.quiz.repository.GameRepository;
 import me.srikavin.quiz.viewmodel.GameViewModel;
@@ -65,7 +61,7 @@ public class GameFragment extends Fragment {
         TextView gamePosition = getView().findViewById(R.id.game_position);
         ViewGroup container = getView().findViewById(R.id.game_container);
 
-        GameAnswerAdapter adapter = new GameAnswerAdapter(answerRecycler);
+        GameAnswerAdapter adapter = new GameAnswerAdapter(answerRecycler, mViewModel::submitAnswer, getContext());
 
         answerRecycler.setLayoutManager(new LinearLayoutManager(getContext()));
         answerRecycler.setAdapter(adapter);
@@ -122,10 +118,10 @@ public class GameFragment extends Fragment {
                         getResources().getColor(R.color.colorPrimary, null),
                         getResources().getColor(R.color.colorSecondary, null)
                 }).getConfettiManager()
-                        .setEmissionDuration(500 + countdownBar.getProgress() * 100)
+                        .setEmissionDuration(750 + countdownBar.getProgress() * 10)
                         .setVelocityY(600, 75)
                         .setVelocityX(0, 200)
-                        .setEmissionRate(countdownBar.getProgress() * 8f).animate();
+                        .setEmissionRate(countdownBar.getProgress() * 2f).animate();
                 adapter.displayLastAsCorrect();
             } else {
                 // The chosen answer was wrong
@@ -141,107 +137,23 @@ public class GameFragment extends Fragment {
             }
         }));
 
-        if (mViewModel.getGameState().getValue() == QuizGameState.FINISHED) {
-            displayStatsFragment(mViewModel.getGameStats().getValue());
-        }
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                if (getActivity() == null) {
+                    return;
+                }
+                getActivity().runOnUiThread(() -> {
+                    if (mViewModel.getGameState().getValue() == QuizGameState.FINISHED) {
+                        displayStatsFragment(mViewModel.getGameStats().getValue());
+                    }
+                });
+            }
+        }, 1000);
     }
 
     private void displayStatsFragment(GameRepository.GameStats stats) {
         ((GameActivity) getActivity()).goToStatsDisplay(stats);
-    }
-
-    private class GameAnswerAdapter extends RecyclerView.Adapter<GameAnswerAdapter.AnswerViewHolder> {
-
-        private List<QuizAnswer> answers = Collections.emptyList();
-        private AnswerViewHolder lastChosen;
-        private RecyclerView recycler;
-
-        public GameAnswerAdapter(RecyclerView recycler) {
-            this.recycler = recycler;
-        }
-
-        @NonNull
-        @Override
-        public AnswerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-            return new AnswerViewHolder(LayoutInflater.from(getContext()).inflate(R.layout.game_answer_list_item, parent, false));
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull AnswerViewHolder holder, int position) {
-            holder.bind(answers.get(position), (vh, qa) -> {
-                mViewModel.submitAnswer(qa);
-                lastChosen = vh;
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return answers.size();
-        }
-
-        void setAnswers(List<QuizAnswer> answers) {
-            this.answers = answers;
-            notifyDataSetChanged();
-        }
-
-        void displayLastAsCorrect() {
-            if (lastChosen != null) {
-                lastChosen.displayAsCorrect();
-            }
-        }
-
-        void displayLastAsIncorrect() {
-            if (lastChosen != null) {
-                lastChosen.displayAsIncorrect();
-            }
-        }
-
-        void displayCorrectAnswers(List<QuizAnswer> correct) {
-            StreamSupport.stream(answers).filter(correct::contains).forEach(e -> {
-                AnswerViewHolder holder = ((AnswerViewHolder) recycler.findViewHolderForAdapterPosition(answers.indexOf(e)));
-                if (holder != null) {
-                    holder.displayAsCorrect();
-                }
-            });
-        }
-
-        class AnswerViewHolder extends RecyclerView.ViewHolder {
-            private int correct_text = getResources().getColor(R.color.game_answer_correct_text, null);
-            private int correct_bg = getResources().getColor(R.color.game_answer_correct_background, null);
-            private int incorrect_text = getResources().getColor(R.color.game_answer_incorrect_text, null);
-            private int incorrect_bg = getResources().getColor(R.color.game_answer_incorrect_background, null);
-            private Drawable default_bg = getResources().getDrawable(R.drawable.game_answer_button_background, null);
-            private int default_text = getResources().getColor(R.color.game_answer_text, null);
-
-            AnswerViewHolder(@NonNull View itemView) {
-                super(itemView);
-            }
-
-            void bind(QuizAnswer answer, BiConsumer<AnswerViewHolder, QuizAnswer> handler) {
-                TextView answerView = itemView.findViewById(R.id.game_answer_list_item_answer_text);
-                answerView.setText(answer.text);
-                answerView.setOnClickListener((v) -> handler.accept(this, answer));
-                reset();
-            }
-
-            void reset() {
-                TextView answerView = itemView.findViewById(R.id.game_answer_list_item_answer_text);
-                answerView.setTextColor(default_text);
-                answerView.setBackground(default_bg);
-            }
-
-            void displayAsCorrect() {
-                TextView answerView = itemView.findViewById(R.id.game_answer_list_item_answer_text);
-                answerView.setTextColor(correct_text);
-                answerView.setBackgroundColor(correct_bg);
-            }
-
-            void displayAsIncorrect() {
-                TextView answerView = itemView.findViewById(R.id.game_answer_list_item_answer_text);
-                answerView.setTextColor(incorrect_text);
-                answerView.setBackgroundColor(incorrect_bg);
-            }
-        }
     }
 
 }

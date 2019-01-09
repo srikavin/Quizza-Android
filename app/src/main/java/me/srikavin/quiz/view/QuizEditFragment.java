@@ -105,7 +105,9 @@ public class QuizEditFragment extends Fragment {
             private void save() {
                 mViewModel.saveQuiz().observe(getViewLifecycleOwner(), quiz -> {
                     if (quiz != null) {
-                        Toast.makeText(getContext(), getString(R.string.data_save_success), Toast.LENGTH_SHORT).show();
+                        if (!quiz.isLocal) {
+                            Toast.makeText(getContext(), getString(R.string.data_save_success), Toast.LENGTH_SHORT).show();
+                        }
                         getActivity().finish();
                     } else {
                         Toast.makeText(getContext(), getString(R.string.data_save_fail), Toast.LENGTH_SHORT).show();

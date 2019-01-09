@@ -1,18 +1,27 @@
 package me.srikavin.quiz.viewmodel;
 
+import android.app.Application;
+
 import java.util.HashMap;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import me.srikavin.quiz.model.Quiz;
 import me.srikavin.quiz.repository.QuizRepository;
 
-public class QuizDetailViewModel extends ViewModel {
+public class QuizDetailViewModel extends AndroidViewModel {
 
+    private final QuizRepository quizRepository;
     private Map<String, MutableLiveData<Quiz>> quizzes = new HashMap<>();
+
+    public QuizDetailViewModel(@NonNull Application application) {
+        super(application);
+        quizRepository = new QuizRepository(application);
+    }
 
     public LiveData<Quiz> getQuizByID(String id) {
         if (!quizzes.containsKey(id)) {
@@ -23,7 +32,7 @@ public class QuizDetailViewModel extends ViewModel {
     }
 
     public void updateQuiz(final String id) {
-        QuizRepository.INSTANCE.getQuizByID(id, new QuizRepository.QuizResponseHandler() {
+        quizRepository.getQuizByID(id, new QuizRepository.QuizResponseHandler() {
             @Override
             public void handle(@Nullable Quiz newQuiz) {
                 quizzes.get(id).postValue(newQuiz);

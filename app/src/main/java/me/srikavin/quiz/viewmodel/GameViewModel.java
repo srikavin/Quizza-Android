@@ -1,8 +1,11 @@
 package me.srikavin.quiz.viewmodel;
 
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import me.srikavin.quiz.model.AnswerResponse;
 import me.srikavin.quiz.model.Quiz;
 import me.srikavin.quiz.model.QuizAnswer;
@@ -11,7 +14,9 @@ import me.srikavin.quiz.model.QuizQuestion;
 import me.srikavin.quiz.repository.GameRepository;
 import me.srikavin.quiz.repository.QuizRepository;
 
-public class GameViewModel extends ViewModel {
+public class GameViewModel extends AndroidViewModel {
+    private QuizRepository quizRepository;
+
     private MutableLiveData<Quiz> quiz;
 
     private MutableLiveData<Integer> gameScore = new MutableLiveData<>();
@@ -24,6 +29,11 @@ public class GameViewModel extends ViewModel {
     private MutableLiveData<QuizGameState> gameState = new MutableLiveData<>();
     private MutableLiveData<Integer> timeRemaining = new MutableLiveData<>();
     private MutableLiveData<Void> createGame;
+
+    public GameViewModel(@NonNull Application application) {
+        super(application);
+        quizRepository = new QuizRepository(application);
+    }
 
 
     public LiveData<String> getCurrentGameID() {
@@ -116,7 +126,7 @@ public class GameViewModel extends ViewModel {
     }
 
     private void loadQuizzes(String id) {
-        QuizRepository.INSTANCE.getQuizByID(id, new QuizRepository.QuizResponseHandler() {
+        quizRepository.getQuizByID(id, new QuizRepository.QuizResponseHandler() {
             @Override
             public void handle(Quiz quiz) {
                 GameViewModel.this.quiz.postValue(quiz);

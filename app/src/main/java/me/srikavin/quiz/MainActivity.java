@@ -1,10 +1,19 @@
 package me.srikavin.quiz;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -108,5 +117,69 @@ public class MainActivity extends AppCompatActivity {
                 actionBar.setTitle(R.string.bottombar_create);
                 break;
         }
+    }
+
+    private void reportBug() {
+        String logCatException = null;
+        File logCatTemp = null;
+        try {
+            Process process = Runtime.getRuntime().exec("logcat -d");
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+
+            StringBuilder log = new StringBuilder();
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                log.append(line);
+                log.append('\n');
+            }
+            String logcat = log.toString();
+            File cacheDir = getApplicationContext().getExternalCacheDir();
+            logCatTemp = File.createTempFile("bugreport", "logcat.txt", cacheDir);
+            FileWriter writer = new FileWriter(logCatTemp);
+            writer.write(logcat);
+            writer.close();
+
+        } catch (Exception e) {
+            // Exception occurred when saving log cat
+            logCatException = "Exception occurred while trying to save logcat:\n";
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
+            logCatException += sw.toString();
+        }
+        Intent intent = new Intent(Intent.ACTION_SENDTO);
+        intent.setData(Uri.parse("mailto:"))
+                .putExtra(Intent.EXTRA_EMAIL, new String[]{"quizza.bug.reports@mail.srikavin.me"})
+                .putExtra(Intent.EXTRA_SUBJECT, "Quizza Bug Report");
+        if (logCatTemp != null) {
+            intent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(logCatTemp));
+        }
+        intent.putExtra(Intent.EXTRA_TEXT,
+                "Steps to Reproduce: \n" +
+                        "Details about the bug: \n" +
+                        "Would you like to be contacted if more details are necessary? \n" +
+                        "\n" +
+                        "------------------------------------------------------------------\n" +
+                        "LOGCAT:\n" +
+                        (logCatException == null ? "Saved successfully" : logCatException)
+        );
+        if (intent.resolveActivity(getPackageManager()) != null) {
+            startActivity(intent);
+        }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_main_actionbar_menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.report_bug) {
+            reportBug();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

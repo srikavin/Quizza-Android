@@ -23,6 +23,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
 
 /**
  * @param <E> The enum containing possible error codes returned from the api
@@ -32,15 +33,19 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
     protected Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
     protected JsonParser jsonParser = new JsonParser();
     private AuthRequestInterceptor interceptor;
+    protected static boolean offlineMode = false;
+    private Status statusRepository;
+
 
     public InternetRepository() {
         interceptor = new AuthRequestInterceptor();
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(interceptor).build();
         retrofit = new Retrofit.Builder()
-                .baseUrl("http://192.168.1.7:4000/api/v1/")
+                .baseUrl("https://quiz.srikavin.me/api/v1/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(client)
                 .build();
+        statusRepository = retrofit.create(Status.class);
     }
 
     protected void ensureAuthorized(Context context) {
@@ -48,27 +53,19 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
         interceptor.setToken(token);
     }
 
-    static class AuthRequestInterceptor implements Interceptor {
-        private String token = "";
-
-        @Override
-        @NonNull
-        public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
-            Request.Builder ongoing = chain.request().newBuilder();
-            ongoing.addHeader("x-access-token", this.token);
-            return chain.proceed(ongoing.build());
-        }
-
-        void setToken(String token) {
-            if (token != null) {
-                this.token = token;
+    protected void checkStatus() {
+        statusRepository.getStatus().enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                offlineMode = false;
             }
-        }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                offlineMode = true;
+            }
+        });
     }
-
-    protected abstract E mapIntegerErrorCode(int error);
-
-    protected abstract void forwardNetworkError(R handler);
 
     /**
      * Processes the response for error codes, calling {@link InternetRepository#mapIntegerErrorCode(int)},
@@ -80,6 +77,7 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
      */
     protected E[] getAPIErrors(Response<?> response) throws IOException {
         if (!response.isSuccessful() && response.errorBody() != null) {
+            System.out.println(response.errorBody().string());
             JsonObject root = jsonParser.parse(response.errorBody().string()).getAsJsonObject();
 
             APIError[] errors;
@@ -107,6 +105,33 @@ public abstract class InternetRepository<T, E extends Enum, R extends Repository
             return errs.toArray(tmp);
         }
         return null;
+    }
+
+    static class AuthRequestInterceptor implements Interceptor {
+        private String token = "";
+
+        @Override
+        @NonNull
+        public okhttp3.Response intercept(@NonNull Chain chain) throws IOException {
+            Request.Builder ongoing = chain.request().newBuilder();
+            ongoing.addHeader("x-access-token", this.token);
+            return chain.proceed(ongoing.build());
+        }
+
+        void setToken(String token) {
+            if (token != null) {
+                this.token = token;
+            }
+        }
+    }
+
+    protected abstract E mapIntegerErrorCode(int error);
+
+    protected abstract void forwardNetworkError(R handler);
+
+    private interface Status {
+        @GET("status")
+        Call<Void> getStatus();
     }
 
     protected boolean handleAPIErrors(Response<?> response, R handler) {

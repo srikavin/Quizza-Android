@@ -2,6 +2,9 @@ package me.srikavin.quiz.model;
 
 import java.util.List;
 
+/**
+ * A Model class that holds the structure of an answer response as returned by a repository
+ */
 public class AnswerResponse {
     private boolean correct;
     private QuizQuestion question;

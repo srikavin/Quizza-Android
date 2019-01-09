@@ -101,15 +101,23 @@ public enum GameRepository {
 
     public static class GameStats {
         public final int correct;
+        public final int total;
+        public final int score;
         public final List<QuizAnswer> chosen;
         public final List<QuizQuestion> quizQuestions;
         public final double percentCorrect;
 
-        public GameStats(int correct, List<QuizAnswer> chosen, List<QuizQuestion> quizQuestions) {
+        public GameStats(int correct, int score, List<QuizAnswer> chosen, List<QuizQuestion> quizQuestions) {
             this.correct = correct;
+            this.score = score;
             this.chosen = chosen;
             this.quizQuestions = quizQuestions;
-            percentCorrect = correct / (double) quizQuestions.size();
+            this.total = quizQuestions.size();
+            if (total != 0) {
+                percentCorrect = correct / (double) total;
+            } else {
+                percentCorrect = 0;
+            }
         }
     }
 
@@ -170,7 +178,7 @@ public enum GameRepository {
                     nextQuestion(game);
                     game.waitingForAnswer = false;
                 }
-            }, 3500);
+            }, 1500);
         }
 
         private void nextQuestion(Game game) {
@@ -200,7 +208,7 @@ public enum GameRepository {
             } else {
                 game.currentQuestion--;
                 game.setState(QuizGameState.FINISHED);
-                game.handler.handleGameStats(new GameStats(game.correct, game.chosen, game.quiz.questions));
+                game.handler.handleGameStats(new GameStats(game.correct, game.score, game.chosen, game.quiz.questions));
                 game.countDownTimer.cancel();
             }
 

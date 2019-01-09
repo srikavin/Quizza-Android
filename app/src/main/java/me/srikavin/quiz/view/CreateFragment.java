@@ -166,8 +166,8 @@ public class CreateFragment extends Fragment {
 
             itemView.findViewById(R.id.create_quiz_delete_quiz).setOnClickListener(v -> {
                 AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle(getString(R.string.delete_question_confirm_title));
-                builder.setMessage(getString(R.string.delete_question_confirm));
+                builder.setTitle(getString(R.string.delete_quiz_title));
+                builder.setMessage(getString(R.string.delete_quiz_confirmm));
                 builder.setPositiveButton("Delete Quiz", (dialog, id) -> {
                     deleteQuiz(quiz);
                     dialog.dismiss();

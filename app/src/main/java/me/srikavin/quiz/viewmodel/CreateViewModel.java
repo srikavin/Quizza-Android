@@ -14,9 +14,11 @@ import me.srikavin.quiz.repository.QuizRepository;
 
 public class CreateViewModel extends AndroidViewModel {
     private MutableLiveData<List<Quiz>> ownedQuizzes;
+    private QuizRepository quizRepository;
 
     public CreateViewModel(@NonNull Application application) {
         super(application);
+        quizRepository = new QuizRepository(application);
     }
 
     public LiveData<List<Quiz>> getOwnedQuizzes() {
@@ -28,7 +30,7 @@ public class CreateViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<Quiz>> deleteQuiz(Quiz quiz) {
-        QuizRepository.INSTANCE.deleteQuiz(quiz, new QuizRepository.QuizResponseHandler() {
+        quizRepository.deleteQuiz(quiz, new QuizRepository.QuizResponseHandler() {
             @Override
             public void handle(Quiz user) {
                 updateDrafts();
@@ -43,7 +45,7 @@ public class CreateViewModel extends AndroidViewModel {
     }
 
     public void updateDrafts() {
-        QuizRepository.INSTANCE.getOwned(getApplication(), new QuizRepository.QuizResponseHandler() {
+        quizRepository.getOwned(getApplication(), new QuizRepository.QuizResponseHandler() {
             @Override
             public void handleMultiple(@Nullable List<Quiz> newQuizzes) {
                 ownedQuizzes.postValue(newQuizzes);

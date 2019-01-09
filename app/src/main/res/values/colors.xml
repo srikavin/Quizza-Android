@@ -13,8 +13,16 @@
 
     <color name="game_answer_text">@color/colorSecondaryDark</color>
     <color name="game_answer_background">#ffffff</color>
-    <color name="game_answer_correct_background">#1b5e20</color>
+
+    <color name="game_answer_correct_background">#43a047</color>
     <color name="game_answer_correct_text">#ffffff</color>
+
+    <color name="game_answer_chosen_correct_background">#034508</color>
+    <color name="game_answer_chosen_correct_text">@color/colorPrimary</color>
+
+    <color name="game_answer_chosen_incorrect_background">#d32f2f</color>
+    <color name="game_answer_chosen_incorrect_text">#ffffff</color>
+
     <color name="game_answer_incorrect_background">#d32f2f</color>
     <color name="game_answer_incorrect_text">#ffffff</color>
 </resources>

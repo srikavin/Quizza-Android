@@ -1,14 +1,23 @@
 package me.srikavin.quiz.viewmodel;
 
+import android.app.Application;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 import me.srikavin.quiz.model.Quiz;
 import me.srikavin.quiz.repository.QuizRepository;
 
-public class QuizEditViewModel extends ViewModel {
+public class QuizEditViewModel extends AndroidViewModel {
     private MutableLiveData<Quiz> quiz;
     private boolean creatingQuiz;
+    private QuizRepository quizRepository;
+
+    public QuizEditViewModel(@NonNull Application application) {
+        super(application);
+        quizRepository = new QuizRepository(application);
+    }
 
     public LiveData<Quiz> createQuiz() {
         if (quiz == null) {
@@ -28,7 +37,7 @@ public class QuizEditViewModel extends ViewModel {
             creatingQuiz = false;
         }
 
-        QuizRepository.INSTANCE.getQuizByID(id, new QuizRepository.QuizResponseHandler() {
+        quizRepository.getQuizByID(id, new QuizRepository.QuizResponseHandler() {
             @Override
             public void handle(Quiz newQuiz) {
                 quiz.postValue(newQuiz);
@@ -46,14 +55,14 @@ public class QuizEditViewModel extends ViewModel {
             return liveData;
         }
         if (creatingQuiz) {
-            QuizRepository.INSTANCE.createQuiz(quizVal, new QuizRepository.QuizResponseHandler() {
+            quizRepository.createQuiz(quizVal, new QuizRepository.QuizResponseHandler() {
                 @Override
                 public void handle(Quiz quiz) {
                     liveData.postValue(quiz);
                 }
             });
         } else {
-            QuizRepository.INSTANCE.editQuiz(quizVal.id, quizVal, new QuizRepository.QuizResponseHandler() {
+            quizRepository.editQuiz(quizVal.id, quizVal, new QuizRepository.QuizResponseHandler() {
                 @Override
                 public void handle(Quiz quiz) {
                     liveData.postValue(quiz);

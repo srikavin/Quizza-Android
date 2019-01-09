@@ -63,6 +63,7 @@ public class LoginFragment extends Fragment {
         final TextInputLayout password = getView().findViewById(R.id.login_activity_password_view);
         Button loginButton = getView().findViewById(R.id.login_activity_login_button);
         Button registerButton = getView().findViewById(R.id.login_activity_register_button);
+        Button loginOffline = getView().findViewById(R.id.login_offline);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.google_client_id))
@@ -97,6 +98,12 @@ public class LoginFragment extends Fragment {
             mViewModel.register(usernameString, passwordString)
                     .observe(getViewLifecycleOwner(), this::handleAuthResult);
         });
+
+        loginOffline.setOnClickListener(v -> {
+            Toast.makeText(getContext(), "Offline login successful", Toast.LENGTH_SHORT).show();
+            continueToMain();
+        });
+
     }
 
     /**

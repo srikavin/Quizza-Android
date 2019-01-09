@@ -23,6 +23,8 @@ public class Quiz {
     @Expose
     public String overview;
 
+    public boolean isLocal = false;
+
     public String coverImageUrl;
 
     public Quiz() {
@@ -33,5 +35,16 @@ public class Quiz {
         this.draft = true;
         this.overview = "";
         this.title = "";
+    }
+
+    public Quiz(Quiz quiz) {
+        this.id = quiz.id;
+        this.title = quiz.title;
+        this.description = quiz.description;
+        this.tags = quiz.tags;
+        this.questions = quiz.questions;
+        this.draft = quiz.draft;
+        this.overview = quiz.overview;
+        this.coverImageUrl = quiz.coverImageUrl;
     }
 }
