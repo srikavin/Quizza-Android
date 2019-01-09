@@ -74,23 +74,23 @@ public class BattleFragment extends Fragment {
         List<Quiz> testing = new ArrayList<>();
         testing.add(new Quiz() {{
             title = "FBLA Testing: Coding & Programming";
-            coverImageUrl = "https://images.unsplash.com/photo-1535498730771-e735b998cd64?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80";
+            coverImage = "https://images.unsplash.com/photo-1535498730771-e735b998cd64?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&w=1000&q=80";
         }});
         testing.add(new Quiz() {{
             title = "FBLA Dresscode";
-            coverImageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd249c-y8zHGhkBuFy2M3bcl_G9WGsJbThLGLOI0OK9GScvCeO3g";
+            coverImage = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd249c-y8zHGhkBuFy2M3bcl_G9WGsJbThLGLOI0OK9GScvCeO3g";
         }});
         testing.add(new Quiz() {{
             title = "FBLA Testing: Computer Problem Solving";
-            coverImageUrl = "https://images.pexels.com/photos/754082/pexels-photo-754082.jpeg?cs=srgb&dl=blur-blurred-background-colors-754082.jpg&fm=jpg";
+            coverImage = "https://images.pexels.com/photos/754082/pexels-photo-754082.jpeg?cs=srgb&dl=blur-blurred-background-colors-754082.jpg&fm=jpg";
         }});
         testing.add(new Quiz() {{
             title = "FBLA Testing: Mobile App Development";
-            coverImageUrl = "https://images.pexels.com/photos/754082/pexels-photo-754082.jpeg?cs=srgb&dl=blur-blurred-background-colors-754082.jpg&fm=jpg";
+            coverImage = "https://images.pexels.com/photos/754082/pexels-photo-754082.jpeg?cs=srgb&dl=blur-blurred-background-colors-754082.jpg&fm=jpg";
         }});
         testing.add(new Quiz() {{
             title = "asd2412123";
-            coverImageUrl = "https://i.pinimg.com/736x/76/3c/f2/763cf2372ce3775ff4956549fd664455.jpg";
+            coverImage = "https://i.pinimg.com/736x/76/3c/f2/763cf2372ce3775ff4956549fd664455.jpg";
         }});
 
         adapter.setQuizzes(testing);
@@ -174,7 +174,8 @@ public class BattleFragment extends Fragment {
         public void setQuiz(Quiz quiz) {
             this.quiz = quiz;
             this.title.setText(quiz.title);
-            Picasso.get().load(quiz.coverImageUrl).into(image);
+            System.out.println(quiz.coverImage);
+            Picasso.get().load(quiz.coverImage).into(image);
         }
     }
 }

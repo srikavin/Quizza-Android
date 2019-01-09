@@ -22,10 +22,11 @@ public class Quiz {
     public boolean draft;
     @Expose
     public String overview;
+    @Expose
+    public String coverImage;
 
     public boolean isLocal = false;
 
-    public String coverImageUrl;
 
     public Quiz() {
         this.id = UUID.randomUUID().toString();
@@ -45,6 +46,6 @@ public class Quiz {
         this.questions = quiz.questions;
         this.draft = quiz.draft;
         this.overview = quiz.overview;
-        this.coverImageUrl = quiz.coverImageUrl;
+        this.coverImage = quiz.coverImage;
     }
 }

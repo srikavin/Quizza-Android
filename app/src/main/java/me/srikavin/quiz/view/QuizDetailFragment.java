@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.appbar.CollapsingToolbarLayout;
@@ -66,9 +67,11 @@ public class QuizDetailFragment extends Fragment {
         mViewModel.getQuizByID(id).observe(this, quiz -> {
             if (quiz != null) {
                 collapsingToolbar.setTitle(quiz.title);
-                if (quiz.coverImageUrl != null) {
-                    Picasso.get().load(quiz.coverImageUrl).into((ImageView) getView().findViewById(R.id.image));
+                if (quiz.coverImage != null) {
+                    Picasso.get().load(quiz.coverImage).into((ImageView) getView().findViewById(R.id.image));
                 }
+                TextView textView = getView().findViewById(R.id.quiz_detail_description);
+                textView.setText(quiz.description == null ? "" : quiz.description);
             } else {
                 Toast.makeText(getContext(), R.string.data_load_fail, Toast.LENGTH_LONG).show();
             }
