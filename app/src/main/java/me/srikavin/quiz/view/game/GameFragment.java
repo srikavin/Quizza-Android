@@ -86,8 +86,8 @@ public class GameFragment extends Fragment {
         });
 
         mViewModel.getGameInfo().observe(this, info -> {
-            countdownBar.setMax(info.timePerQuestion);
-            numberOfQuestions.set(info.numberOfQuestions);
+            countdownBar.setMax(info.getTimePerQuestion());
+            numberOfQuestions.set(info.getNumberOfQuestions());
             gamePosition.setText(getString(R.string.game_position, currentQuestion.get(), numberOfQuestions.get()));
         });
 

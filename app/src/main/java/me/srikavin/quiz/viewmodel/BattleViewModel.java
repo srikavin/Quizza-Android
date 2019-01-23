@@ -32,8 +32,8 @@ public class BattleViewModel extends AndroidViewModel {
     public void updateQuizzes() {
         quizRepository.getQuizzes(new QuizRepository.QuizResponseHandler() {
             @Override
-            public void handleMultiple(@Nullable List<Quiz> newQuizzes) {
-                quizzes.postValue(newQuizzes);
+            public void handleMultiple(@Nullable List<? extends Quiz> newQuizzes) {
+                quizzes.postValue((List<Quiz>) newQuizzes);
             }
         });
     }

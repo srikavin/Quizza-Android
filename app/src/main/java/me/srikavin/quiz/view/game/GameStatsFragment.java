@@ -58,8 +58,8 @@ public class GameStatsFragment extends Fragment {
         TextView correctFraction = getView().findViewById(R.id.game_stats_correct_fraction);
         TextView correctPercentage = getView().findViewById(R.id.game_stats_correct_percentage);
 
-        correctFraction.setText(getString(R.string.game_stats_correct_fraction_text, stats.correct, stats.total));
-        correctPercentage.setText(getString(R.string.game_stats_correct_percentage_text, stats.percentCorrect * 100));
+        correctFraction.setText(getString(R.string.game_stats_correct_fraction_text, stats.getCorrect(), stats.getTotal()));
+        correctPercentage.setText(getString(R.string.game_stats_correct_percentage_text, stats.getPercentCorrect() * 100));
 
         QuestionAdapter adapter = new QuestionAdapter(stats);
 
@@ -67,17 +67,17 @@ public class GameStatsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
-        if (stats.percentCorrect > 0.85) {
+        if (stats.getPercentCorrect() > 0.85) {
             new Handler().postDelayed(() -> {
                 CommonConfetti.rainingConfetti(getView().findViewById(R.id.game_stats_confetti_container), new int[]{
                         Color.GREEN, Color.CYAN,
                         getResources().getColor(R.color.colorPrimary, null),
                         getResources().getColor(R.color.colorSecondary, null)
                 }).getConfettiManager()
-                        .setEmissionDuration(50 + stats.score)
+                        .setEmissionDuration(50 + stats.getScore())
                         .setVelocityY(600, 75)
                         .setVelocityX(0, 200)
-                        .setEmissionRate(40 + stats.score * .25f).animate();
+                        .setEmissionRate(40 + stats.getScore() * .25f).animate();
             }, 1200);
         }
     }
@@ -87,8 +87,8 @@ public class GameStatsFragment extends Fragment {
         private List<QuizAnswer> chosen;
 
         public QuestionAdapter(GameRepository.GameStats stats) {
-            questions = stats.quizQuestions;
-            chosen = stats.chosen;
+            questions = stats.getQuizQuestions();
+            chosen = stats.getChosen();
         }
 
         @NonNull

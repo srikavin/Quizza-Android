@@ -47,8 +47,8 @@ public class CreateViewModel extends AndroidViewModel {
     public void updateDrafts() {
         quizRepository.getOwned(getApplication(), new QuizRepository.QuizResponseHandler() {
             @Override
-            public void handleMultiple(@Nullable List<Quiz> newQuizzes) {
-                ownedQuizzes.postValue(newQuizzes);
+            public void handleMultiple(@Nullable List<? extends Quiz> newQuizzes) {
+                ownedQuizzes.postValue((List<Quiz>) newQuizzes);
             }
         });
     }
