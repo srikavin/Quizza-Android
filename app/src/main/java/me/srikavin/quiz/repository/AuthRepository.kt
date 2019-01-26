@@ -3,8 +3,9 @@ package me.srikavin.quiz.repository
 import android.content.Context
 import android.util.Log
 import com.google.gson.annotations.Expose
-import me.srikavin.quiz.MainActivity.TAG
 import me.srikavin.quiz.model.AuthUser
+import me.srikavin.quiz.repository.internet.InternetRepository
+import me.srikavin.quiz.view.main.MainActivity.TAG
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -74,7 +75,7 @@ enum class AuthRepository {
             //By default, do nothing
         }
 
-        override fun handleMultiple(users: List<AuthUser>?) {
+        override fun handleMultiple(users: List<AuthUser>) {
             //By default, do nothing
         }
 

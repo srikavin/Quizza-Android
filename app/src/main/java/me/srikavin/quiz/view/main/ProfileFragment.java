@@ -1,4 +1,4 @@
-package me.srikavin.quiz.view;
+package me.srikavin.quiz.view.main;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

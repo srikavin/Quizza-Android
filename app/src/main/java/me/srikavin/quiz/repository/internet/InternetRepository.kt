@@ -1,19 +1,23 @@
-package me.srikavin.quiz.repository
+package me.srikavin.quiz.repository.internet
 
 import android.content.Context
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.google.gson.annotations.Expose
+import me.srikavin.quiz.repository.AuthRepository
+import me.srikavin.quiz.repository.Repository
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import java.io.IOException
 import java.util.*
+import kotlin.collections.ArrayList
 
 /**
  * @param <E> The enum containing possible error codes returned from the api
@@ -31,6 +35,7 @@ abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler
         retrofit = Retrofit.Builder()
                 .baseUrl("https://quiz-dev.srikavin.me/api/v1/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
+                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(client)
                 .build()
         statusRepository = retrofit.create(Status::class.java)
@@ -166,7 +171,7 @@ abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler
     protected inner class DefaultMultiRetrofitCallbackHandler(handler: R) : RetrofitCallbackHandler<List<T>>(handler) {
 
         override fun handle(data: List<T>?) {
-            handler.handleMultiple(data)
+            handler.handleMultiple(data ?: ArrayList())
         }
     }
 

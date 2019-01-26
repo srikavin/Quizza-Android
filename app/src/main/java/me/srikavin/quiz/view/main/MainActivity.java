@@ -1,4 +1,4 @@
-package me.srikavin.quiz;
+package me.srikavin.quiz.view.main;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -21,10 +21,9 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
-import me.srikavin.quiz.view.BattleFragment;
-import me.srikavin.quiz.view.CreateFragment;
+import me.srikavin.quiz.R;
+import me.srikavin.quiz.SlidingPagerAdapter;
 import me.srikavin.quiz.view.LoginActivity;
-import me.srikavin.quiz.view.ProfileFragment;
 
 public class MainActivity extends AppCompatActivity {
     public static String TAG = "QUIZ";

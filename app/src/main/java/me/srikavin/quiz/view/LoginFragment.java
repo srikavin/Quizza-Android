@@ -21,11 +21,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import me.srikavin.quiz.MainActivity;
 import me.srikavin.quiz.R;
 import me.srikavin.quiz.model.AuthUser;
 import me.srikavin.quiz.repository.AuthRepository;
 import me.srikavin.quiz.repository.error.ErrorWrapper;
+import me.srikavin.quiz.view.main.MainActivity;
 import me.srikavin.quiz.viewmodel.LoginViewModel;
 
 public class LoginFragment extends Fragment {

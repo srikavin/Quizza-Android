@@ -24,10 +24,10 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import me.srikavin.quiz.MainActivity;
 import me.srikavin.quiz.R;
 import me.srikavin.quiz.model.QuizGameState;
 import me.srikavin.quiz.repository.GameRepository;
+import me.srikavin.quiz.view.main.MainActivity;
 import me.srikavin.quiz.viewmodel.GameViewModel;
 
 public class GameFragment extends Fragment {

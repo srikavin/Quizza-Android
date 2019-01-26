@@ -67,7 +67,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun createGame(quiz: Quiz) {
         if (createGame == null) {
             createGame = MutableLiveData()
-            GameRepository.INSTANCE.createGame(quiz, object : GameRepository.GameResponseHandler() {
+            GameRepository.createGame(quiz, object : GameRepository.GameResponseHandler() {
                 override fun handleAnswer(response: AnswerResponse) {
                     answerResponse.postValue(response)
                 }
@@ -103,7 +103,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun submitAnswer(quizAnswer: QuizAnswer) {
-        GameRepository.INSTANCE.submitAnswer(currentGameID.value
+        GameRepository.submitAnswer(currentGameID.value
                 ?: throw RuntimeException("Current game ID is null; cannot call submit answer here"), quizAnswer)
     }
 

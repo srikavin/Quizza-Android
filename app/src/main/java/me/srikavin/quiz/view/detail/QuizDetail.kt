@@ -1,4 +1,4 @@
-package me.srikavin.quiz.view
+package me.srikavin.quiz.view.detail
 
 import android.os.Bundle
 
@@ -12,7 +12,10 @@ class QuizDetail : AppCompatActivity() {
         setContentView(R.layout.quiz_detail_activity)
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .replace(R.id.container, QuizDetailFragment.newInstance(intent.getStringExtra("id")))
+                    .replace(
+                            R.id.container,
+                            QuizDetailFragment.newInstance(intent.getStringExtra(ARG_QUIZ_ID), intent.getStringExtra(ARG_QUIZ_NAME))
+                    )
                     .commitNow()
         }
     }

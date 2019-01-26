@@ -8,7 +8,7 @@ abstract class Repository {
         abstract fun handle(t: T?)
 
         @WorkerThread
-        abstract fun handleMultiple(t: List<T>?)
+        abstract fun handleMultiple(t: List<T>)
 
         @WorkerThread
         abstract fun handleErrors(vararg errors: E)

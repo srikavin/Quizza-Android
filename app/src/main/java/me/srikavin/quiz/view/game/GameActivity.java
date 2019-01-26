@@ -8,13 +8,18 @@ import me.srikavin.quiz.R;
 import me.srikavin.quiz.repository.GameRepository;
 
 public class GameActivity extends AppCompatActivity {
+    public static final String EXTRA_QUIZ_ID = "QUIZ_ID";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.game_activity);
+
+        System.out.println(getIntent());
+        System.out.println(getIntent().getStringExtra(EXTRA_QUIZ_ID));
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, GameFragment.newInstance(getIntent().getStringExtra("id")))
+                    .add(R.id.container, GameFragment.newInstance(getIntent().getStringExtra(EXTRA_QUIZ_ID)))
                     .commitNow();
         }
     }
