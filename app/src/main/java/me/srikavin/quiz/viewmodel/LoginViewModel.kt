@@ -8,8 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import me.srikavin.quiz.model.AuthUser
 import me.srikavin.quiz.repository.AuthRepository
 import me.srikavin.quiz.repository.error.ErrorWrapper
-
-import me.srikavin.quiz.view.main.MainActivity.TAG
+import me.srikavin.quiz.view.main.TAG
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private var currentUser: MutableLiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>>? = null
@@ -55,7 +54,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         })
     }
 
-    fun registerAccount(username: String, password: String) {
+    private fun registerAccount(username: String, password: String) {
         AuthRepository.INSTANCE.register(username, password, object : AuthRepository.AuthResponseHandler() {
             override fun handle(user: AuthUser?) {
                 AuthRepository.INSTANCE.setAuthToken(getApplication<Application>().applicationContext, user!!.token)

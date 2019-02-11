@@ -1,6 +1,7 @@
 package me.srikavin.quiz.repository.internet
 
 import android.content.Context
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonParser
 import com.google.gson.annotations.Expose
@@ -23,9 +24,9 @@ import kotlin.collections.ArrayList
  * @param <E> The enum containing possible error codes returned from the api
 </E> */
 abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler<E, T>> : Repository() {
-    protected var retrofit: Retrofit
-    protected var gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
-    protected var jsonParser = JsonParser()
+    protected val retrofit: Retrofit
+    protected val gson: Gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
+    protected val jsonParser = JsonParser()
     private val interceptor: AuthRequestInterceptor
     private val statusRepository: Status
 

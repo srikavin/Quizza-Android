@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
 import me.srikavin.quiz.R;
 import me.srikavin.quiz.repository.GameRepository;
 
@@ -19,7 +20,7 @@ public class GameActivity extends AppCompatActivity {
         System.out.println(getIntent().getStringExtra(EXTRA_QUIZ_ID));
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, GameFragment.newInstance(getIntent().getStringExtra(EXTRA_QUIZ_ID)))
+                    .add(R.id.container, GameFragment.Companion.newInstance(getIntent().getStringExtra(EXTRA_QUIZ_ID)))
                     .commitNow();
         }
     }

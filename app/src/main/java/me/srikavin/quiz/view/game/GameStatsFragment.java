@@ -8,17 +8,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.github.jinatonic.confetti.CommonConfetti;
 import com.google.gson.Gson;
 
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import java9.util.stream.Collectors;
 import java9.util.stream.StreamSupport;
+import kotlin.Unit;
 import me.srikavin.quiz.R;
 import me.srikavin.quiz.model.QuizAnswer;
 import me.srikavin.quiz.model.QuizQuestion;
@@ -71,8 +74,8 @@ public class GameStatsFragment extends Fragment {
             new Handler().postDelayed(() -> {
                 CommonConfetti.rainingConfetti(getView().findViewById(R.id.game_stats_confetti_container), new int[]{
                         Color.GREEN, Color.CYAN,
-                        getResources().getColor(R.color.colorPrimary, null),
-                        getResources().getColor(R.color.colorSecondary, null)
+                        ContextCompat.getColor(getContext(), R.color.colorPrimary),
+                        ContextCompat.getColor(getContext(), R.color.colorSecondary),
                 }).getConfettiManager()
                         .setEmissionDuration(50 + stats.getScore())
                         .setVelocityY(600, 75)
@@ -117,8 +120,7 @@ public class GameStatsFragment extends Fragment {
             RecyclerView recyclerView = itemView.findViewById(R.id.game_question_answer_list);
             TextView title = itemView.findViewById(R.id.game_question_title);
 
-            GameAnswerAdapter answerAdapter = new GameAnswerAdapter(recyclerView, (qa) -> {
-            }, getContext());
+            GameAnswerAdapter answerAdapter = new GameAnswerAdapter(recyclerView, (qa) -> Unit.INSTANCE, getContext());
 
             title.setText(question.text);
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -141,7 +143,7 @@ public class GameStatsFragment extends Fragment {
                         viewHolder.displayAsCorrect();
                     }
                 }
-
+                return Unit.INSTANCE;
             });
         }
     }

@@ -3,7 +3,7 @@ package me.srikavin.quiz.repository
 import android.util.Log
 import me.srikavin.quiz.model.*
 import me.srikavin.quiz.repository.local.LocalGameRepository
-import me.srikavin.quiz.view.main.MainActivity.TAG
+import me.srikavin.quiz.view.main.TAG
 
 inline class GameID(val value: String)
 

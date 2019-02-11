@@ -1,6 +1,7 @@
 package me.srikavin.quiz.repository.internet
 
 import android.content.Context
+import io.reactivex.Completable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import me.srikavin.quiz.model.Quiz
@@ -40,6 +41,11 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
         quizService.getOwned().enqueue(DefaultMultiRetrofitCallbackHandler(handler))
     }
 
+    override fun getOwned(context: Context): Single<List<Quiz>> {
+        ensureAuthorized(context)
+        return quizService.getOwnedn().subscribeOn(Schedulers.io())
+    }
+
 
     override fun getQuizByID(id: String, handler: QuizRepository.QuizResponseHandler) {
         quizService.getQuizByID(id).enqueue(DefaultRetrofitCallbackHandler(handler))
@@ -57,6 +63,11 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
     override fun editQuiz(context: Context, id: String, quiz: Quiz, handler: QuizRepository.QuizResponseHandler) {
         ensureAuthorized(context)
         quizService.editQuiz(id, quiz).enqueue(DefaultRetrofitCallbackHandler(handler))
+    }
+
+    override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
+        ensureAuthorized(context)
+        return quizService.deleteQuizn(quiz.id)
     }
 
     override fun deleteQuiz(context: Context, quiz: Quiz, handler: QuizRepository.QuizResponseHandler) {
@@ -91,8 +102,14 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
         @POST("quizzes/")
         fun createQuiz(@Body quiz: Quiz): Call<Quiz>
 
+        @GET("quizzes/owned")
+        fun getOwnedn(): Single<List<Quiz>>
+
         @DELETE("quizzes/{id}")
         fun deleteQuiz(@Path("id") id: String): Call<ResponseBody>
+
+        @DELETE("quizzes/{id}")
+        fun deleteQuizn(@Path("id") id: String): Completable
 
         @PUT("quizzes/{id}")
         fun editQuiz(@Path("id") id: String, @Body quiz: Quiz): Call<Quiz>

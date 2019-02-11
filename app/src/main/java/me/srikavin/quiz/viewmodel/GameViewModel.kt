@@ -4,12 +4,31 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.ww.roxie.BaseAction
+import com.ww.roxie.BaseState
 import me.srikavin.quiz.model.*
 import me.srikavin.quiz.repository.GameID
 import me.srikavin.quiz.repository.GameRepository
 import me.srikavin.quiz.repository.QuizRepository
 
+sealed class GameAction : BaseAction {
+    data class LoadQuiz(val quizId: String) : GameAction()
+}
+
+sealed class GameChange {
+    object Loading : GameChange()
+    data class QuizLoad(val quiz: Quiz) : GameChange()
+    data class Error(val error: Throwable?) : GameChange()
+}
+
+data class GameViewState(
+        val quiz: Quiz? = null,
+        val loading: Boolean = false,
+        val error: Boolean = false
+) : BaseState
+
 class GameViewModel(application: Application) : AndroidViewModel(application) {
+
     private val quizRepository: QuizRepository = QuizRepository(application)
 
     private var quiz = MutableLiveData<Quiz>()

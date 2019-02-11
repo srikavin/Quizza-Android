@@ -1,17 +1,29 @@
 package me.srikavin.quiz.repository.local
 
 import android.content.Context
-import android.widget.Toast
+import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import io.reactivex.Completable
 import io.reactivex.Single
 import me.srikavin.quiz.model.Quiz
 import me.srikavin.quiz.repository.QuizRepository
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.get
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-internal class LocalQuizRepository(private val context: Context, private val onlineService: QuizRepository.QuizService) : QuizRepository.QuizService {
+internal class LocalQuizRepository(private val onlineService: QuizRepository.QuizService) : QuizRepository.QuizService, KoinComponent {
+
+    override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun getOwned(context: Context): Single<List<Quiz>> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun getQuizzes(): Single<List<Quiz>> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -23,8 +35,8 @@ internal class LocalQuizRepository(private val context: Context, private val onl
     private val gson: Gson = GsonBuilder().create()
 
     init {
-        val saved = context.getSharedPreferences("savedQuizzes", Context.MODE_PRIVATE).getString("quizzes", null)
-
+        val sharedPreferences: SharedPreferences = get()
+        val saved = sharedPreferences.getString("quizzes", null)
 
         if (saved == null) {
             val defaultListType = object : TypeToken<List<Quiz>>() {
@@ -48,7 +60,8 @@ internal class LocalQuizRepository(private val context: Context, private val onl
     }
 
     fun save() {
-        context.getSharedPreferences("savedQuizzes", Context.MODE_PRIVATE).edit().putString("quizzes", gson.toJson(localQuizzes)).apply()
+        val sharedPreferences: SharedPreferences = get()
+        sharedPreferences.edit().putString("quizzes", gson.toJson(localQuizzes)).apply()
     }
 
     private fun appendLocalToQuizTitles(quizzes: Collection<Quiz>): List<Quiz> {
@@ -116,7 +129,7 @@ internal class LocalQuizRepository(private val context: Context, private val onl
             }
 
             override fun handleErrors(vararg errors: QuizRepository.ErrorCodes) {
-                Toast.makeText(this@LocalQuizRepository.context, "Failed to save online. Saved locally.", Toast.LENGTH_SHORT).show()
+//                Toast.makeText(this@LocalQuizRepository.context, "Failed to save online. Saved locally.", Toast.LENGTH_SHORT).show()
                 if (quiz.id == null) {
                     quiz.id = UUID.randomUUID().toString()
                 }
@@ -138,7 +151,7 @@ internal class LocalQuizRepository(private val context: Context, private val onl
                 //If failed to edit quiz online, it is likely that the quiz was created locally
                 // and needs to be created on the server as well
                 if (localQuizzes.containsKey(id)) {
-                    createQuiz(this@LocalQuizRepository.context, quiz, handler)
+//                    createQuiz(this@LocalQuizRepository.context, quiz, handler)
                     return
                 }
 

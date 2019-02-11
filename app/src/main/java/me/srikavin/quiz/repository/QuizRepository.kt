@@ -2,10 +2,11 @@ package me.srikavin.quiz.repository
 
 import android.content.Context
 import android.util.Log
+import io.reactivex.Completable
 import io.reactivex.Single
 import me.srikavin.quiz.model.Quiz
 import me.srikavin.quiz.repository.internet.InternetQuizRepository
-import me.srikavin.quiz.view.main.MainActivity.TAG
+import me.srikavin.quiz.view.main.TAG
 
 class QuizRepository(private val context: Context) {
     private val quizRepository: QuizService = InternetQuizRepository() //LocalQuizRepository(context, InternetQuizRepository())
@@ -26,7 +27,11 @@ class QuizRepository(private val context: Context) {
         quizRepository.getQuizzes(handler)
     }
 
-    fun getOwned(context: Context, handler: QuizResponseHandler) {
+    fun getOwned(): Single<List<Quiz>> {
+        return quizRepository.getOwned(context)
+    }
+
+    fun getOwned(handler: QuizResponseHandler) {
         quizRepository.getOwned(context, handler)
     }
 
@@ -36,6 +41,10 @@ class QuizRepository(private val context: Context) {
 
     fun editQuiz(id: String, quiz: Quiz, handler: QuizResponseHandler) {
         quizRepository.editQuiz(context, id, quiz, handler)
+    }
+
+    fun deleteQuiz(quiz: Quiz): Completable {
+        return quizRepository.deleteQuiz(context, quiz)
     }
 
     fun deleteQuiz(quiz: Quiz, handler: QuizResponseHandler) {
@@ -68,6 +77,8 @@ class QuizRepository(private val context: Context) {
 
         fun getOwned(context: Context, handler: QuizResponseHandler)
 
+        fun getOwned(context: Context): Single<List<Quiz>>
+
         fun getQuizByID(id: String, handler: QuizResponseHandler)
 
         fun getQuizByID(id: String): Single<Quiz>
@@ -77,6 +88,8 @@ class QuizRepository(private val context: Context) {
         fun editQuiz(context: Context, id: String, quiz: Quiz, handler: QuizResponseHandler)
 
         fun deleteQuiz(context: Context, quiz: Quiz, handler: QuizResponseHandler)
+
+        fun deleteQuiz(context: Context, quiz: Quiz): Completable
     }
 
     abstract class QuizResponseHandler : Repository.ResponseHandler<ErrorCodes, Quiz>() {

@@ -11,6 +11,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -55,7 +56,7 @@ class QuizDetailFragment : Fragment() {
         description = view.findViewById(R.id.quiz_detail_description)
 
         Picasso.get().load(null as String?)
-                .placeholder(ColorDrawable(resources.getColor(R.color.colorSecondaryLight, null)))
+                .placeholder(ColorDrawable(ContextCompat.getColor(context!!, R.color.colorSecondaryLight)))
                 .into(view.findViewById<View>(R.id.image) as ImageView)
 
         val id = arguments!!.getString(ARG_QUIZ_ID)!!
