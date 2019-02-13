@@ -74,7 +74,7 @@ class GameFragment : Fragment() {
 
         viewModel.getCurrentQuestion().observe(this, Observer { question ->
             adapter.setAnswers(question.answers)
-            title.text = question.text
+            title.text = question.contents
         })
         viewModel.getTimeRemaining().observe(this, Observer { timeLeft ->
             countdownText.text = "$timeLeft"

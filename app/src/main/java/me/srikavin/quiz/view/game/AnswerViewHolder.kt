@@ -10,7 +10,7 @@ import androidx.annotation.ColorRes
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import me.srikavin.quiz.R
-import me.srikavin.quiz.model.QuizAnswer
+import me.srikavin.quiz.network.common.model.data.QuizAnswerModel
 
 @Suppress("PrivatePropertyName")
 internal class AnswerViewHolder(itemView: View, context: Context) : RecyclerView.ViewHolder(itemView) {
@@ -47,9 +47,9 @@ internal class AnswerViewHolder(itemView: View, context: Context) : RecyclerView
         default_text = getColor(R.color.game_answer_text)
     }
 
-    fun bind(answer: QuizAnswer, handler: (AnswerViewHolder, QuizAnswer) -> Unit) {
+    fun bind(answer: QuizAnswerModel, handler: (AnswerViewHolder, QuizAnswerModel) -> Unit) {
         val answerView = itemView.findViewById<TextView>(R.id.game_answer_list_item_answer_text)
-        answerView.text = answer.text
+        answerView.text = answer.contents
         answerView.setOnClickListener { handler(this, answer) }
     }
 

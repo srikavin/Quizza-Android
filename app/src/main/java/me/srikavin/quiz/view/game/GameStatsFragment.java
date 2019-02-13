@@ -23,8 +23,8 @@ import java9.util.stream.Collectors;
 import java9.util.stream.StreamSupport;
 import kotlin.Unit;
 import me.srikavin.quiz.R;
-import me.srikavin.quiz.model.QuizAnswer;
 import me.srikavin.quiz.model.QuizQuestion;
+import me.srikavin.quiz.network.common.model.data.QuizAnswerModel;
 import me.srikavin.quiz.repository.GameRepository;
 
 public class GameStatsFragment extends Fragment {
@@ -87,7 +87,7 @@ public class GameStatsFragment extends Fragment {
 
     private class QuestionAdapter extends RecyclerView.Adapter<QuestionCard> {
         private List<QuizQuestion> questions;
-        private List<QuizAnswer> chosen;
+        private List<QuizAnswerModel> chosen;
 
         public QuestionAdapter(GameRepository.GameStats stats) {
             questions = stats.getQuizQuestions();
@@ -116,24 +116,24 @@ public class GameStatsFragment extends Fragment {
             super(itemView);
         }
 
-        void bind(QuizQuestion question, QuizAnswer chosen) {
+        void bind(QuizQuestion question, QuizAnswerModel chosen) {
             RecyclerView recyclerView = itemView.findViewById(R.id.game_question_answer_list);
             TextView title = itemView.findViewById(R.id.game_question_title);
 
             GameAnswerAdapter answerAdapter = new GameAnswerAdapter(recyclerView, (qa) -> Unit.INSTANCE, getContext());
 
-            title.setText(question.text);
+            title.setText(question.getContents());
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
             recyclerView.setAdapter(answerAdapter);
 
-            answerAdapter.setAnswers(question.answers);
+            answerAdapter.setAnswers(question.getAnswers());
 
-            List<QuizAnswer> correct = StreamSupport.stream(question.answers)
-                    .filter((e) -> e.correct).collect(Collectors.toList());
+            List<QuizAnswerModel> correct = StreamSupport.stream(question.getAnswers())
+                    .filter(QuizAnswerModel::isCorrect).collect(Collectors.toList());
 
             answerAdapter.setOnBindAnswer((viewHolder, answer) -> {
                 if (chosen.equals(answer)) {
-                    if (chosen.correct) {
+                    if (chosen.isCorrect()) {
                         viewHolder.displayAsChosenCorrect();
                     } else {
                         viewHolder.displayAsChosenIncorrect();

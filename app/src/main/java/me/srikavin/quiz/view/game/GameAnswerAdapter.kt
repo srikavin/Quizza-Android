@@ -5,13 +5,13 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import me.srikavin.quiz.R
-import me.srikavin.quiz.model.QuizAnswer
+import me.srikavin.quiz.network.common.model.data.QuizAnswerModel
 
-internal typealias AnswerBindHandler = (AnswerViewHolder, QuizAnswer) -> Unit
+internal typealias AnswerBindHandler = (AnswerViewHolder, QuizAnswerModel) -> Unit
 
-internal class GameAnswerAdapter(private val recycler: RecyclerView, private val onClick: (QuizAnswer) -> Unit, private val context: Context) : RecyclerView.Adapter<AnswerViewHolder>() {
+internal class GameAnswerAdapter(private val recycler: RecyclerView, private val onClick: (QuizAnswerModel) -> Unit, private val context: Context) : RecyclerView.Adapter<AnswerViewHolder>() {
     var answerBindHandler: AnswerBindHandler = { _, _ -> }
-    private var answers = emptyList<QuizAnswer>()
+    private var answers = emptyList<QuizAnswerModel>()
     private var lastChosen: AnswerViewHolder? = null
 
     fun setOnBindAnswer(onBindAnswer: AnswerBindHandler) {
@@ -37,7 +37,7 @@ internal class GameAnswerAdapter(private val recycler: RecyclerView, private val
         return answers.size
     }
 
-    fun setAnswers(answers: List<QuizAnswer>) {
+    fun setAnswers(answers: List<QuizAnswerModel>) {
         this.answers = answers
         notifyDataSetChanged()
     }
@@ -54,27 +54,27 @@ internal class GameAnswerAdapter(private val recycler: RecyclerView, private val
         }
     }
 
-    fun displayAsChosenIncorrect(answer: QuizAnswer) {
+    fun displayAsChosenIncorrect(answer: QuizAnswerModel) {
         val holder = recycler.findViewHolderForAdapterPosition(answers.indexOf(answer)) as AnswerViewHolder?
         holder?.displayAsChosenIncorrect()
     }
 
-    fun displayAsChosenCorrect(answer: QuizAnswer) {
+    fun displayAsChosenCorrect(answer: QuizAnswerModel) {
         val holder = recycler.findViewHolderForAdapterPosition(answers.indexOf(answer)) as AnswerViewHolder?
         holder?.displayAsChosenCorrect()
     }
 
-    fun displayAsIncorrect(answer: QuizAnswer) {
+    fun displayAsIncorrect(answer: QuizAnswerModel) {
         val holder = recycler.findViewHolderForAdapterPosition(answers.indexOf(answer)) as AnswerViewHolder?
         holder?.displayAsIncorrect()
     }
 
-    fun displayAsCorrect(answer: QuizAnswer) {
+    fun displayAsCorrect(answer: QuizAnswerModel) {
         val holder = recycler.findViewHolderForAdapterPosition(answers.indexOf(answer)) as AnswerViewHolder?
         holder?.displayAsCorrect()
     }
 
-    fun displayCorrectAnswers(correct: List<QuizAnswer>) {
+    fun displayCorrectAnswers(correct: List<QuizAnswerModel>) {
         answers.filter { correct.contains(it) }.forEach { this.displayAsCorrect(it) }
     }
 

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+
 import me.srikavin.quiz.R;
 
 public class QuizEditActivity extends AppCompatActivity {
@@ -16,7 +17,7 @@ public class QuizEditActivity extends AppCompatActivity {
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.container,
-                            QuizEditFragment.newInstance((QuizEditFragment.Mode) intent.getSerializableExtra("mode"),
+                            QuizEditFragment.Companion.newInstance((QuizEditFragment.Mode) intent.getSerializableExtra("mode"),
                                     intent.getStringExtra("id")))
                     .commitNow();
         }

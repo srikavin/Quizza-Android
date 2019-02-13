@@ -6,7 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.ww.roxie.BaseAction
 import com.ww.roxie.BaseState
-import me.srikavin.quiz.model.*
+import me.srikavin.quiz.model.AnswerResponse
+import me.srikavin.quiz.model.Quiz
+import me.srikavin.quiz.model.QuizGameState
+import me.srikavin.quiz.network.common.model.data.QuizAnswerModel
+import me.srikavin.quiz.network.common.model.data.QuizQuestionModel
 import me.srikavin.quiz.repository.GameID
 import me.srikavin.quiz.repository.GameRepository
 import me.srikavin.quiz.repository.QuizRepository
@@ -37,7 +41,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val currentGameID = MutableLiveData<GameID>()
     private val gameInfo = MutableLiveData<GameRepository.GameInfo>()
-    private val currentQuestion = MutableLiveData<QuizQuestion>()
+    private val currentQuestion = MutableLiveData<QuizQuestionModel>()
     private val answerResponse = MutableLiveData<AnswerResponse>()
     private val gameStats = MutableLiveData<GameRepository.GameStats>()
     private val gameState = MutableLiveData<QuizGameState>()
@@ -61,7 +65,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return timeRemaining
     }
 
-    fun getCurrentQuestion(): LiveData<QuizQuestion> {
+    fun getCurrentQuestion(): LiveData<QuizQuestionModel> {
         return currentQuestion
     }
 
@@ -91,7 +95,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     answerResponse.postValue(response)
                 }
 
-                override fun handleQuestion(question: QuizQuestion) {
+                override fun handleQuestion(question: QuizQuestionModel) {
                     currentQuestion.postValue(question)
                 }
 
@@ -121,7 +125,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return
     }
 
-    fun submitAnswer(quizAnswer: QuizAnswer) {
+    fun submitAnswer(quizAnswer: QuizAnswerModel) {
         GameRepository.submitAnswer(currentGameID.value
                 ?: throw RuntimeException("Current game ID is null; cannot call submit answer here"), quizAnswer)
     }

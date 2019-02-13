@@ -1,20 +1,24 @@
 package me.srikavin.quiz.repository
 
 import android.util.Log
-import me.srikavin.quiz.model.*
-import me.srikavin.quiz.repository.local.LocalGameRepository
+import me.srikavin.quiz.model.AnswerResponse
+import me.srikavin.quiz.model.Quiz
+import me.srikavin.quiz.model.QuizGameState
+import me.srikavin.quiz.model.QuizQuestion
+import me.srikavin.quiz.network.common.model.data.QuizAnswerModel
+import me.srikavin.quiz.network.common.model.data.QuizQuestionModel
 import me.srikavin.quiz.view.main.TAG
 
 inline class GameID(val value: String)
 
 object GameRepository {
-    private val localGameRepository = LocalGameRepository()
+    private val localGameRepository = RemoteGameRepository()
 
     fun createGame(quiz: Quiz, handler: GameResponseHandler) {
         localGameRepository.createGame(quiz, handler)
     }
 
-    fun submitAnswer(id: GameID, answer: QuizAnswer) {
+    fun submitAnswer(id: GameID, answer: QuizAnswerModel) {
         localGameRepository.submitAnswer(id, answer)
     }
 
@@ -40,7 +44,7 @@ object GameRepository {
     internal interface GameService {
         fun createGame(quiz: Quiz, handler: GameResponseHandler)
 
-        fun submitAnswer(id: GameID, answer: QuizAnswer?)
+        fun submitAnswer(id: GameID, answer: QuizAnswerModel?)
     }
 
     abstract class GameResponseHandler {
@@ -48,7 +52,7 @@ object GameRepository {
             //By default, do nothing
         }
 
-        open fun handleQuestion(question: QuizQuestion) {
+        open fun handleQuestion(question: QuizQuestionModel) {
             //By default, do nothing
         }
 
@@ -80,7 +84,7 @@ object GameRepository {
         }
     }
 
-    class GameStats(val correct: Int, val score: Int, val chosen: List<QuizAnswer?>, val quizQuestions: List<QuizQuestion>) {
+    class GameStats(val correct: Int, val score: Int, val chosen: List<QuizAnswerModel?>, val quizQuestions: List<QuizQuestion>) {
         val total: Int = quizQuestions.size
         val percentCorrect: Double
 

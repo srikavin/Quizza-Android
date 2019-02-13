@@ -4,7 +4,11 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import me.srikavin.quiz.model.*
+import me.srikavin.quiz.model.AnswerResponse
+import me.srikavin.quiz.model.Game
+import me.srikavin.quiz.model.Quiz
+import me.srikavin.quiz.model.QuizGameState
+import me.srikavin.quiz.network.common.model.data.QuizAnswerModel
 import me.srikavin.quiz.repository.GameID
 import me.srikavin.quiz.repository.GameRepository
 import java.util.*
@@ -22,14 +26,14 @@ class LocalGameRepository : GameRepository.GameService {
         nextQuestion(game)
     }
 
-    override fun submitAnswer(id: GameID, answer: QuizAnswer?) {
+    override fun submitAnswer(id: GameID, answer: QuizAnswerModel?) {
         val game = idGameMap[id]!!
 
         if (game.waitingForAnswer || game.state == QuizGameState.FINISHED) {
             return
         }
 
-        val correct = answer != null && answer.correct
+        val correct = answer != null && answer.isCorrect
 
         game.chosen.add(answer)
 
@@ -40,7 +44,7 @@ class LocalGameRepository : GameRepository.GameService {
         }
 
         val cur = game.quiz.questions[game.currentQuestion]
-        val correctAnswers = cur.answers.filter { it.correct }
+        val correctAnswers = cur.answers.filter { it.isCorrect }
 
         game.handler.handleAnswer(AnswerResponse(correct, cur, correctAnswers))
 
