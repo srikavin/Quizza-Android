@@ -14,6 +14,7 @@ import me.srikavin.quiz.SlidingPagerAdapter
 import me.srikavin.quiz.appModule
 import me.srikavin.quiz.repository.QuizRepository
 import me.srikavin.quiz.view.LoginActivity
+import me.srikavin.quiz.view.dialog.GameModeSelectDialog
 import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.with
 import org.koin.standalone.StandAloneContext
@@ -44,6 +45,9 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
             return
         }
+
+        val dialog = GameModeSelectDialog(this, {}, {})
+        dialog.show()
 
         println("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
         val a: QuizRepository = get()
