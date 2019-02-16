@@ -22,6 +22,10 @@ object GameRepository {
         localGameRepository.submitAnswer(id, answer)
     }
 
+    fun quit(id: GameID) {
+        localGameRepository.quit(id)
+    }
+
     enum class ErrorCodes constructor(private val code: Int) {
         UNKNOWN_ERROR(0),
         NETWORK_ERROR(5),
@@ -45,6 +49,8 @@ object GameRepository {
         fun createGame(quiz: Quiz, handler: GameResponseHandler)
 
         fun submitAnswer(id: GameID, answer: QuizAnswerModel?)
+
+        fun quit(id: GameID)
     }
 
     abstract class GameResponseHandler {
@@ -56,8 +62,13 @@ object GameRepository {
             //By default, do nothing
         }
 
-        open fun handleGameCreate(id: GameID, info: GameInfo) {
-            //By default, do nothing
+        open fun handleGameInfo(info: GameRepository.GameInfo) {
+
+        }
+
+
+        open fun handleGameCreate(id: GameID) {
+
         }
 
         open fun handleGameStats(stats: GameStats) {

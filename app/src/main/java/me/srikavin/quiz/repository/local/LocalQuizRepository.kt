@@ -48,7 +48,7 @@ internal class LocalQuizRepository(private val onlineService: QuizRepository.Qui
             quizzes.forEach { e ->
                 e.isLocal = true
                 e.draft = true
-                localQuizzes[e.id] = e
+                localQuizzes[e.id.idString] = e
             }
         } else {
 
@@ -66,11 +66,11 @@ internal class LocalQuizRepository(private val onlineService: QuizRepository.Qui
     }
 
     private fun appendLocalToQuizTitles(quizzes: Collection<Quiz>): List<Quiz> {
-        return quizzes.map {
-            Quiz(it).apply {
-                this.title += " (local)"
-                this.isLocal = true
-            }
+        return quizzes.map { quiz ->
+            quiz.copy(
+                    title = "$quiz.title (local)",
+                    isLocal = true
+            )
         }
     }
 
@@ -108,7 +108,7 @@ internal class LocalQuizRepository(private val onlineService: QuizRepository.Qui
 
     override fun getQuizByID(id: String, handler: QuizRepository.QuizResponseHandler) {
         if (localQuizzes.containsKey(id)) {
-            val local = Quiz(localQuizzes[id]!!)
+            val local = localQuizzes[id]!!.copy()
             local.isLocal = true
             handler.handle(local)
             return
@@ -131,11 +131,8 @@ internal class LocalQuizRepository(private val onlineService: QuizRepository.Qui
 
             override fun handleErrors(vararg errors: QuizRepository.ErrorCodes) {
 //                Toast.makeText(this@LocalQuizRepository.context, "Failed to save online. Saved locally.", Toast.LENGTH_SHORT).show()
-                if (quiz.id == null) {
-                    quiz.id = UUID.randomUUID().toString()
-                }
                 processQuiz(quiz)
-                localQuizzes[quiz.id] = quiz
+                localQuizzes[quiz.id.idString] = quiz
                 this@LocalQuizRepository.save()
                 handler.handle(quiz)
             }
@@ -163,7 +160,7 @@ internal class LocalQuizRepository(private val onlineService: QuizRepository.Qui
 
     override fun deleteQuiz(context: Context, quiz: Quiz, handler: QuizRepository.QuizResponseHandler) {
         //Delete locally as well
-        localQuizzes.remove(quiz.id)
+        localQuizzes.remove(quiz.id.idString)
         onlineService.deleteQuiz(context, quiz, object : QuizRepository.QuizResponseHandler() {
             override fun handle(quiz: Quiz?) {
                 super.handle(quiz)

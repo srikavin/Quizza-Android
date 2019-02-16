@@ -123,14 +123,20 @@ class GameFragment : Fragment() {
                 }
                 activity!!.runOnUiThread {
                     if (viewModel.getGameState().value == QuizGameState.FINISHED) {
-                        displayStatsFragment(viewModel.getGameStats().value)
+                        val stats = viewModel.getGameStats().value ?: return@runOnUiThread
+                        displayStatsFragment(stats)
                     }
                 }
             }
         }, 1000)
     }
 
-    private fun displayStatsFragment(stats: GameRepository.GameStats?) {
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.quitGame()
+    }
+
+    private fun displayStatsFragment(stats: GameRepository.GameStats) {
         (activity as GameActivity).goToStatsDisplay(stats)
     }
 

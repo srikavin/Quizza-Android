@@ -100,7 +100,7 @@ class CreateFragment : Fragment() {
 
         val intent = Intent(activity, QuizEditActivity::class.java)
         intent.putExtra("mode", QuizEditFragment.Mode.EDIT)
-        intent.putExtra("id", quiz.id)
+        intent.putExtra("id", quiz.id.idString)
 
         activity.startActivityForResult(intent, RECV_EDIT_QUIZ)
 
@@ -161,10 +161,10 @@ class CreateFragment : Fragment() {
             quizTitle.text = quiz.title
             if (quiz.draft) {
                 quizStatus.text = getString(R.string.create_quiz_draft)
-                quizStatus.setTextColor(resources.getColor(R.color.colorSecondaryDark, null))
+                quizStatus.setTextColor(resources.getColor(R.color.colorSecondaryDark))
             } else {
                 quizStatus.text = getString(R.string.create_quiz_published)
-                quizStatus.setTextColor(resources.getColor(R.color.colorPrimary, null))
+                quizStatus.setTextColor(resources.getColor(R.color.colorPrimary))
             }
             val questions = quiz.questions.size
             quizSubtitle.text = resources.getQuantityString(R.plurals.contains_x_questions, questions, questions)

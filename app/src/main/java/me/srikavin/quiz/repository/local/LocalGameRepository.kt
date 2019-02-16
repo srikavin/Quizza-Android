@@ -14,14 +14,19 @@ import me.srikavin.quiz.repository.GameRepository
 import java.util.*
 
 class LocalGameRepository : GameRepository.GameService {
+    override fun quit(id: GameID) {
+        idGameMap.remove(id)
+    }
+
     private val idGameMap = HashMap<GameID, Game>()
 
     override fun createGame(quiz: Quiz, handler: GameRepository.GameResponseHandler) {
         val id = GameID(UUID.randomUUID().toString())
         val game = Game(id, quiz, handler)
         idGameMap[id] = game
-        game.state = QuizGameState.WAITING_FOR_PLAYERS
-        handler.handleGameCreate(id, GameRepository.GameInfo(30, quiz.questions.size))
+        game.state = QuizGameState.WAITING
+        handler.handleGameCreate(id)
+        handler.handleGameInfo(GameRepository.GameInfo(30, quiz.questions.size))
         game.state = QuizGameState.IN_PROGRESS
         nextQuestion(game)
     }

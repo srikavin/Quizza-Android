@@ -1,48 +1,20 @@
 package me.srikavin.quiz.model
 
 import com.google.gson.annotations.Expose
+import me.srikavin.quiz.network.common.model.data.QuizModel
+import me.srikavin.quiz.network.common.model.data.ResourceId
 import java.util.*
+import kotlin.collections.ArrayList
 
-
-class Quiz {
-    @Expose(serialize = false)
-    var id: String
-    @Expose
-    var title: String
-    @Expose
-    var description: String
-    @Expose
-    var tags: List<Tag>
-    @Expose
-    var questions: MutableList<QuizQuestion>
-    @Expose
-    var draft: Boolean = false
-    @Expose
-    var overview: String
-    @Expose
-    var coverImage: String? = null
-
-    var isLocal = false
-
-
-    constructor() {
-        this.id = UUID.randomUUID().toString()
-        this.tags = ArrayList()
-        this.description = ""
-        this.questions = ArrayList()
-        this.draft = true
-        this.overview = ""
-        this.title = ""
-    }
-
-    constructor(quiz: Quiz) {
-        this.id = quiz.id
-        this.title = quiz.title
-        this.description = quiz.description
-        this.tags = quiz.tags
-        this.questions = quiz.questions
-        this.draft = quiz.draft
-        this.overview = quiz.overview
-        this.coverImage = quiz.coverImage
-    }
-}
+data class Quiz(
+        @Expose(serialize = false)
+        override var id: ResourceId = ResourceId(UUID.randomUUID().toString()),
+        @Expose override var title: String = "",
+        @Expose override var description: String = "",
+        @Expose var tags: List<Tag> = ArrayList(),
+        @Expose override var questions: MutableList<QuizQuestion> = mutableListOf(),
+        @Expose var draft: Boolean = true,
+        @Expose var overview: String = "",
+        @Expose var coverImage: String? = null,
+        var isLocal: Boolean = false
+) : QuizModel

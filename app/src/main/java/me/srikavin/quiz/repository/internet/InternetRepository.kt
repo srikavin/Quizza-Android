@@ -9,6 +9,7 @@ import me.srikavin.quiz.repository.AuthRepository
 import me.srikavin.quiz.repository.Repository
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import org.koin.standalone.KoinComponent
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -23,7 +24,8 @@ import kotlin.collections.ArrayList
 /**
  * @param <E> The enum containing possible error codes returned from the api
 </E> */
-abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler<E, T>> : Repository() {
+abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler<E, T>> : Repository(), KoinComponent {
+    private var authRepository: AuthRepository = AuthRepository
     protected val retrofit: Retrofit
     protected val gson: Gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
     protected val jsonParser = JsonParser()
@@ -43,7 +45,7 @@ abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler
     }
 
     protected fun ensureAuthorized(context: Context) {
-        val token = AuthRepository.INSTANCE.getAuthToken(context)
+        val token = authRepository.getAuthToken(context)
         interceptor.setToken(token)
     }
 

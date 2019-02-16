@@ -13,8 +13,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
-enum class AuthRepository {
-    INSTANCE;
+object AuthRepository {
 
     private val internetAuthRepository = InternetAuthRepository()
     private val localAuthRepository = LocalAuthRepository()
@@ -23,11 +22,15 @@ enum class AuthRepository {
         internetAuthRepository.register(username, password, handler)
     }
 
+    fun loginOauthGoogle(token: String, handler: AuthResponseHandler) {
+        internetAuthRepository.loginOauthGoogle(token, handler)
+    }
+
     fun login(username: String, password: String, handler: AuthResponseHandler) {
         internetAuthRepository.login(username, password, handler)
     }
 
-    fun setAuthToken(context: Context, token: String) {
+    fun setAuthToken(context: Context, token: String?) {
         localAuthRepository.setAuthToken(context, token)
     }
 
@@ -37,6 +40,10 @@ enum class AuthRepository {
 
     fun verifyAuth(context: Context, handler: AuthResponseHandler) {
         internetAuthRepository.verifyAuth(context, handler)
+    }
+
+    fun logout(context: Context) {
+        setAuthToken(context, null)
     }
 
     enum class ErrorCodes(private val code: Int) {
@@ -67,6 +74,8 @@ enum class AuthRepository {
 
         fun login(username: String, password: String, handler: AuthResponseHandler)
 
+        fun loginOauthGoogle(token: String, handler: AuthResponseHandler)
+
         fun verifyAuth(context: Context, handler: AuthResponseHandler)
     }
 
@@ -92,7 +101,6 @@ enum class AuthRepository {
     }
 
     internal class InternetAuthRepository : InternetRepository<AuthUser, ErrorCodes, AuthResponseHandler>(), AuthService {
-
         private val userService: InternetUserService
 
         init {
@@ -134,6 +142,12 @@ enum class AuthRepository {
             })
         }
 
+        override fun loginOauthGoogle(token: String, handler: AuthResponseHandler) {
+            userService
+                    .loginOauthGoogle(GoogleOauthToken(token))
+                    .enqueue(DefaultRetrofitCallbackHandler(handler))
+        }
+
         internal interface InternetUserService {
             @POST("auth/register")
             fun register(@Body loginInformation: LoginInformation): Call<AuthUser>
@@ -141,12 +155,17 @@ enum class AuthRepository {
             @POST("auth/login")
             fun login(@Body loginInformation: LoginInformation): Call<AuthUser>
 
+            @POST("auth/google")
+            fun loginOauthGoogle(@Body token: GoogleOauthToken): Call<AuthUser>
+
             @GET("auth/me")
             fun verifyAuth(): Call<AuthUser>
         }
 
-        internal class LoginInformation(@field:Expose
-                                        var username: String, @field:Expose
+        internal class GoogleOauthToken(@Expose val key: String)
+
+        internal class LoginInformation(@Expose
+                                        var username: String, @Expose
                                         var password: String)
     }
 
@@ -155,7 +174,7 @@ enum class AuthRepository {
             return context.getSharedPreferences("me.srikavin.quiz", Context.MODE_PRIVATE).getString("auth_token", null)
         }
 
-        fun setAuthToken(context: Context, token: String) {
+        fun setAuthToken(context: Context, token: String?) {
             context.getSharedPreferences("me.srikavin.quiz", Context.MODE_PRIVATE).edit().putString("auth_token", token).apply()
         }
     }

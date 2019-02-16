@@ -31,7 +31,7 @@ import java.util.*
 
 class QuizEditFragment : Fragment() {
 
-    private var quizLiveData: LiveData<Quiz>? = null
+    private lateinit var quizLiveData: LiveData<Quiz>
     private var quiz: Quiz? = null
     private var mViewModel: QuizEditViewModel? = null
     private var questionAdapter: QuestionAdapter? = null
@@ -44,28 +44,26 @@ class QuizEditFragment : Fragment() {
         return inflater.inflate(R.layout.quiz_edit_fragment, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         mViewModel = ViewModelProviders.of(this).get(QuizEditViewModel::class.java)
 
-        questions = view!!.findViewById(R.id.quiz_edit_questions_list)
-        val toolbar = view!!.findViewById<Toolbar>(R.id.create_toolbar)
-        val createQuestionFab = view!!.findViewById<FloatingActionButton>(R.id.create_question_fab)
-        val createQuestionButton = view!!.findViewById<AppCompatButton>(R.id.create_question_button)
-        quizTitle = view!!.findViewById(R.id.quiz_edit_quiz_title)
-        noQuestionOverlay = view!!.findViewById(R.id.quiz_edit_no_questions_state)
-
-        assert(arguments != null)
+        questions = view.findViewById(R.id.quiz_edit_questions_list)
+        val toolbar = view.findViewById<Toolbar>(R.id.create_toolbar)
+        val createQuestionFab = view.findViewById<FloatingActionButton>(R.id.create_question_fab)
+        val createQuestionButton = view.findViewById<AppCompatButton>(R.id.create_question_button)
+        quizTitle = view.findViewById(R.id.quiz_edit_quiz_title)
+        noQuestionOverlay = view.findViewById(R.id.quiz_edit_no_questions_state)
 
         val mode = arguments!!.get("mode") as Mode
         val id = arguments!!.getString("id")
 
-        when (mode) {
-            QuizEditFragment.Mode.CREATE -> quizLiveData = mViewModel!!.createQuiz()
-            QuizEditFragment.Mode.EDIT -> quizLiveData = mViewModel!!.editQuiz(id!!)
+        quizLiveData = when (mode) {
+            QuizEditFragment.Mode.CREATE -> mViewModel!!.createQuiz()
+            QuizEditFragment.Mode.EDIT -> mViewModel!!.editQuiz(id!!)
         }
 
-        quizLiveData!!.observe(this, Observer { quiz ->
+        quizLiveData.observe(this, Observer { quiz ->
             this@QuizEditFragment.quiz = quiz
             update(quiz)
         })
@@ -94,12 +92,12 @@ class QuizEditFragment : Fragment() {
                     val builder = AlertDialog.Builder(context!!)
                     builder.setTitle(getString(R.string.edit_quiz_publish_title))
                     builder.setMessage(getString(R.string.edit_quiz_publish_warning))
-                    builder.setPositiveButton(getString(R.string.edit_quiz_publish_confirm_text)) { dialog, id12 ->
+                    builder.setPositiveButton(getString(R.string.edit_quiz_publish_confirm_text)) { dialog, _ ->
                         quiz!!.draft = false
                         save()
                         dialog.dismiss()
                     }
-                    builder.setNegativeButton(getString(R.string.edit_quiz_publish_cancel_text)) { dialog, id1 -> dialog.dismiss() }
+                    builder.setNegativeButton(getString(R.string.edit_quiz_publish_cancel_text)) { dialog, _ -> dialog.dismiss() }
 
                     val alert = builder.create()
                     alert.show()
@@ -115,9 +113,9 @@ class QuizEditFragment : Fragment() {
         toolbar.menu.findItem(R.id.quiz_edit_toolbar_save).setOnMenuItemClickListener(menuItemListener)
         toolbar.menu.findItem(R.id.quiz_edit_toolbar_publish).setOnMenuItemClickListener(menuItemListener)
 
-        createQuestionFab.setOnClickListener { v -> createQuestion() }
+        createQuestionFab.setOnClickListener { createQuestion() }
 
-        createQuestionButton.setOnClickListener { v -> createQuestion() }
+        createQuestionButton.setOnClickListener { createQuestion() }
 
         toolbar.title = "Create Quiz"
 
@@ -201,9 +199,9 @@ class QuizEditFragment : Fragment() {
 
             listener!!.setAnswer(answer)
 
-            itemView.findViewById<View>(R.id.answer_list_item_delete).setOnClickListener { v -> answerAdapter.removeAnswer(answer) }
+            itemView.findViewById<View>(R.id.answer_list_item_delete).setOnClickListener { answerAdapter.removeAnswer(answer) }
 
-            checkBox.setOnCheckedChangeListener { buttonView, isChecked -> answer.isCorrect = isChecked }
+            checkBox.setOnCheckedChangeListener { _, isChecked -> answer.isCorrect = isChecked }
 
             checkBox.isChecked = answer.isCorrect
             textView.text = answer.contents
@@ -247,7 +245,7 @@ class QuizEditFragment : Fragment() {
             }
 
             holder.setQuestion(question, isExpanded)
-            holder.itemView.setOnClickListener { v ->
+            holder.itemView.setOnClickListener {
                 var cur = expanded[question]
                 if (cur == null) {
                     cur = false
@@ -266,10 +264,12 @@ class QuizEditFragment : Fragment() {
         private var question: QuizQuestion? = null
         private var questionDetails: TextView? = null
         private var listener: TextListener? = null
-        private var questionTitle: TextView? = null
+        private lateinit var questionTitle: TextView
 
         fun setQuestion(question: QuizQuestion, expanded: Boolean) {
             this.question = question
+
+            println(question)
 
             val answersList = itemView.findViewById<RecyclerView>(R.id.create_question_answer_list)
             questionTitle = itemView.findViewById(R.id.create_question_title)
@@ -293,27 +293,27 @@ class QuizEditFragment : Fragment() {
                 itemView.findViewById<View>(R.id.create_questions_question_details).visibility = View.GONE
             }
 
-            itemView.findViewById<View>(R.id.create_question_add_answer).setOnClickListener { v ->
+            itemView.findViewById<View>(R.id.create_question_add_answer).setOnClickListener {
                 createAnswer()
                 adapter.notifyDataSetChanged()
             }
 
-            itemView.findViewById<View>(R.id.create_question_delete_question).setOnClickListener { v ->
+            itemView.findViewById<View>(R.id.create_question_delete_question).setOnClickListener {
                 val builder = AlertDialog.Builder(context!!)
                 builder.setTitle(getString(R.string.delete_question_confirm_title))
                 builder.setMessage(getString(R.string.delete_question_confirm))
-                builder.setPositiveButton(getString(R.string.delete_question_delete_button)) { dialog, id ->
+                builder.setPositiveButton(getString(R.string.delete_question_delete_button)) { dialog, _ ->
                     deleteQuestion(question)
                     dialog.dismiss()
                 }
-                builder.setNegativeButton(getString(R.string.delete_question_cancel_button)) { dialog, id -> dialog.dismiss() }
+                builder.setNegativeButton(getString(R.string.delete_question_cancel_button)) { dialog, _ -> dialog.dismiss() }
 
                 val alert = builder.create()
                 alert.show()
             }
 
 
-            questionTitle!!.text = question.contents
+            questionTitle.text = question.contents
             questionText.setText(question.contents)
 
             updateAnswerDetails()
@@ -349,7 +349,7 @@ class QuizEditFragment : Fragment() {
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 val title = s.toString()
                 question!!.contents = title
-                questionTitle!!.text = title
+                questionTitle.text = title
             }
 
             override fun afterTextChanged(s: Editable) {

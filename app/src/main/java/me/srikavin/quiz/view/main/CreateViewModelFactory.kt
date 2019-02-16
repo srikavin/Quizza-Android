@@ -7,7 +7,7 @@ import me.srikavin.quiz.viewmodel.CreateViewModel
 class CreateViewModelFactory(private val battleFragment: CreateFragment) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         @Suppress("UNCHECKED_CAST")
-        return CreateViewModel(null, battleFragment.context!!) as T
+        return CreateViewModel(null) as T
     }
 
 }

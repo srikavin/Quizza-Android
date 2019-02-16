@@ -1,6 +1,5 @@
 package me.srikavin.quiz.viewmodel
 
-import android.content.Context
 import com.ww.roxie.BaseAction
 import com.ww.roxie.BaseState
 import com.ww.roxie.BaseViewModel
@@ -11,6 +10,8 @@ import io.reactivex.rxkotlin.ofType
 import io.reactivex.rxkotlin.plusAssign
 import me.srikavin.quiz.model.Quiz
 import me.srikavin.quiz.repository.QuizRepository
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.get
 
 sealed class BattleListAction : BaseAction {
     object Load : BattleListAction()
@@ -23,14 +24,15 @@ sealed class BattleListChange {
     data class Error(val error: Throwable?) : BattleListChange()
 }
 
+
 data class BattleListState(
         val quizzes: List<Quiz> = emptyList(),
         val loading: Boolean = false,
         val error: Boolean = false
 ) : BaseState
 
-class BattleViewModel(initialState: BattleListState?, context: Context) : BaseViewModel<BattleListAction, BattleListState>() {
-    private val quizRepository: QuizRepository = QuizRepository(context)
+class BattleViewModel(initialState: BattleListState?) : BaseViewModel<BattleListAction, BattleListState>(), KoinComponent {
+    private val quizRepository: QuizRepository = get()
     override val initialState = initialState ?: BattleListState()
 
     private val reducer: Reducer<BattleListState, BattleListChange> = { state, change ->

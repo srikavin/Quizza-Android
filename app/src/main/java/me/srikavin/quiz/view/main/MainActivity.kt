@@ -12,10 +12,9 @@ import com.google.android.material.bottomnavigation.BottomNavigationView
 import me.srikavin.quiz.R
 import me.srikavin.quiz.SlidingPagerAdapter
 import me.srikavin.quiz.appModule
-import me.srikavin.quiz.repository.QuizRepository
+import me.srikavin.quiz.repository.AuthRepository
 import me.srikavin.quiz.view.LoginActivity
 import me.srikavin.quiz.view.dialog.GameModeSelectDialog
-import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.with
 import org.koin.standalone.StandAloneContext
 import java.io.*
@@ -23,12 +22,13 @@ import java.util.*
 
 const val TAG = "QUIZ"
 
-var init = false
+private var init = false
 
 class MainActivity : AppCompatActivity() {
-    internal var profileFragment = ProfileFragment()
-    internal var battleFragment = BattleFragment()
-    internal var createFragment = CreateFragment()
+    private var profileFragment = ProfileFragment()
+    private var battleFragment = BattleFragment()
+    private var createFragment = CreateFragment()
+    private var authRepository = AuthRepository
 
     public override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +38,7 @@ class MainActivity : AppCompatActivity() {
             init = true
         }
 
-        if (!intent.getBooleanExtra("auth", false)) {
-            // Require login if not sent here by log-in activity
+        if (authRepository.getAuthToken(this) == null) {
             val intent = Intent(this, LoginActivity::class.java)
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(intent)
@@ -48,11 +47,6 @@ class MainActivity : AppCompatActivity() {
 
         val dialog = GameModeSelectDialog(this, {}, {})
         dialog.show()
-
-        println("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
-        val a: QuizRepository = get()
-        println(a)
-        println("TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT")
 
         setContentView(R.layout.activity_main)
 

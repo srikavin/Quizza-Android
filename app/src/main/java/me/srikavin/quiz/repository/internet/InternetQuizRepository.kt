@@ -67,12 +67,12 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
 
     override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
         ensureAuthorized(context)
-        return quizService.deleteQuizn(quiz.id)
+        return quizService.deleteQuizn(quiz.id.idString)
     }
 
     override fun deleteQuiz(context: Context, quiz: Quiz, handler: QuizRepository.QuizResponseHandler) {
         ensureAuthorized(context)
-        quizService.deleteQuiz(quiz.id).enqueue(object : Callback<ResponseBody> {
+        quizService.deleteQuiz(quiz.id.idString).enqueue(object : Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
                 handler.handle(null)
             }

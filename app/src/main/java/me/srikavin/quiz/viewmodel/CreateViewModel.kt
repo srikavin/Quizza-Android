@@ -1,6 +1,5 @@
 package me.srikavin.quiz.viewmodel
 
-import android.content.Context
 import com.ww.roxie.*
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -8,6 +7,8 @@ import io.reactivex.rxkotlin.ofType
 import io.reactivex.rxkotlin.plusAssign
 import me.srikavin.quiz.model.Quiz
 import me.srikavin.quiz.repository.QuizRepository
+import org.koin.standalone.KoinComponent
+import org.koin.standalone.get
 
 sealed class CreateQuizAction : BaseAction {
     object Load : CreateQuizAction()
@@ -30,9 +31,9 @@ data class CreateQuizState(
         val expanded: Set<Quiz> = HashSet()
 ) : BaseState
 
-class CreateViewModel(initialState: CreateQuizState?, context: Context) : BaseViewModel<CreateQuizAction, CreateQuizState>() {
+class CreateViewModel(initialState: CreateQuizState?) : BaseViewModel<CreateQuizAction, CreateQuizState>(), KoinComponent {
     override val initialState = initialState ?: CreateQuizState()
-    private val quizRepository: QuizRepository = QuizRepository(context)
+    private val quizRepository: QuizRepository = get()
 
     private val reducer: Reducer<CreateQuizState, CreateQuizChange> = { state, change ->
         when (change) {

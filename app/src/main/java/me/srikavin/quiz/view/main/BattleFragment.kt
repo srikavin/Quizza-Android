@@ -68,7 +68,7 @@ class BattleFragment : Fragment() {
 
     private fun onQuizClick(quiz: Quiz) {
         val intent = Intent(context, QuizDetail::class.java)
-        intent.putExtra(ARG_QUIZ_ID, quiz.id)
+        intent.putExtra(ARG_QUIZ_ID, quiz.id.idString)
         intent.putExtra(ARG_QUIZ_NAME, quiz.title)
         context?.startActivity(intent)
     }

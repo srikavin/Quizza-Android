@@ -12,7 +12,7 @@ class Game(val id: GameID, val quiz: Quiz, var handler: GameRepository.GameRespo
     var correct = 0
     var waitingForAnswer = false
 
-    var state: QuizGameState = QuizGameState.WAITING_FOR_PLAYERS
+    var state: QuizGameState = QuizGameState.WAITING
         set(value) {
             field = value
             handler.handleGameStateChange(value)

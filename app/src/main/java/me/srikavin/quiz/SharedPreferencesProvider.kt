@@ -11,7 +11,5 @@ val appModule = module {
         androidApplication().getSharedPreferences("savedQuizzes", Context.MODE_PRIVATE)
     }
 
-    single {
-        QuizRepository(get())
-    }
+    single { QuizRepository(get()) }
 }

@@ -10,11 +10,7 @@ import me.srikavin.quiz.repository.QuizRepository
 class QuizEditViewModel(application: Application) : AndroidViewModel(application) {
     private var quiz: MutableLiveData<Quiz>? = null
     private var creatingQuiz: Boolean = false
-    private val quizRepository: QuizRepository
-
-    init {
-        quizRepository = QuizRepository(application)
-    }
+    private val quizRepository: QuizRepository = QuizRepository(application)
 
     fun createQuiz(): LiveData<Quiz> {
         if (quiz == null) {
@@ -57,7 +53,7 @@ class QuizEditViewModel(application: Application) : AndroidViewModel(application
                 }
             })
         } else {
-            quizRepository.editQuiz(quizVal.id, quizVal, object : QuizRepository.QuizResponseHandler() {
+            quizRepository.editQuiz(quizVal.id.idString, quizVal, object : QuizRepository.QuizResponseHandler() {
                 override fun handle(quiz: Quiz?) {
                     liveData.postValue(quiz)
                 }

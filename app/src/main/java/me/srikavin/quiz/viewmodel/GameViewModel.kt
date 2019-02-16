@@ -107,9 +107,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     gameScore.postValue(score)
                 }
 
-                override fun handleGameCreate(id: GameID, info: GameRepository.GameInfo) {
-                    currentGameID.postValue(id)
+                override fun handleGameInfo(info: GameRepository.GameInfo) {
                     gameInfo.postValue(info)
+                }
+
+                override fun handleGameCreate(id: GameID) {
+                    currentGameID.postValue(id)
                 }
 
                 override fun handleGameStats(stats: GameRepository.GameStats) {
@@ -128,6 +131,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     fun submitAnswer(quizAnswer: QuizAnswerModel) {
         GameRepository.submitAnswer(currentGameID.value
                 ?: throw RuntimeException("Current game ID is null; cannot call submit answer here"), quizAnswer)
+    }
+
+    fun quitGame() {
+        GameRepository.quit(currentGameID.value ?: return)
     }
 
     private fun loadQuizzes(id: String) {

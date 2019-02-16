@@ -9,29 +9,42 @@ import me.srikavin.quiz.model.AuthUser
 import me.srikavin.quiz.repository.AuthRepository
 import me.srikavin.quiz.repository.error.ErrorWrapper
 import me.srikavin.quiz.view.main.TAG
+import org.koin.standalone.KoinComponent
 
-class LoginViewModel(application: Application) : AndroidViewModel(application) {
-    private var currentUser: MutableLiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>>? = null
-
-    fun register(username: String, password: String): LiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>> {
-        if (currentUser == null) {
-            currentUser = MutableLiveData()
+class LoginViewModel(application: Application) : AndroidViewModel(application), KoinComponent {
+    private var currentUser: MutableLiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>> = MutableLiveData()
+    val authUser: LiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>>
+        get() {
+            return currentUser
         }
+
+    fun register(username: String, password: String) {
         registerAccount(username, password)
-        return currentUser as MutableLiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>>
     }
 
-    fun login(username: String, password: String): LiveData<ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>> {
-        if (currentUser == null) {
-            currentUser = MutableLiveData()
-        }
+    fun login(username: String, password: String) {
         loginAccount(username, password)
-        return currentUser!!
     }
+
+    fun loginGoogleAuth(token: String) {
+        AuthRepository.loginOauthGoogle(token, object : AuthRepository.AuthResponseHandler() {
+            override fun handle(user: AuthUser?) {
+                AuthRepository.setAuthToken(getApplication<Application>().applicationContext, user!!.token!!)
+                val ret = ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>(user, null)
+                currentUser.postValue(ret)
+            }
+
+            override fun handleErrors(vararg errors: AuthRepository.ErrorCodes) {
+                val ret = ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>(null, errors)
+                currentUser.postValue(ret)
+            }
+        })
+    }
+
 
     fun verifyAuth(): LiveData<Boolean> {
         val ret = MutableLiveData<Boolean>()
-        AuthRepository.INSTANCE.verifyAuth(getApplication(), object : AuthRepository.AuthResponseHandler() {
+        AuthRepository.verifyAuth(getApplication(), object : AuthRepository.AuthResponseHandler() {
             override fun handleVerify(result: Boolean) {
                 ret.postValue(result)
             }
@@ -40,26 +53,26 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     private fun loginAccount(username: String, password: String) {
-        AuthRepository.INSTANCE.login(username, password, object : AuthRepository.AuthResponseHandler() {
+        AuthRepository.login(username, password, object : AuthRepository.AuthResponseHandler() {
             override fun handle(user: AuthUser?) {
-                AuthRepository.INSTANCE.setAuthToken(getApplication<Application>().applicationContext, user!!.token)
+                AuthRepository.setAuthToken(getApplication<Application>().applicationContext, user!!.token!!)
                 val ret = ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>(user, null)
-                currentUser!!.postValue(ret)
+                currentUser.postValue(ret)
             }
 
             override fun handleErrors(vararg errors: AuthRepository.ErrorCodes) {
                 val ret = ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>(null, errors)
-                currentUser!!.postValue(ret)
+                currentUser.postValue(ret)
             }
         })
     }
 
     private fun registerAccount(username: String, password: String) {
-        AuthRepository.INSTANCE.register(username, password, object : AuthRepository.AuthResponseHandler() {
+        AuthRepository.register(username, password, object : AuthRepository.AuthResponseHandler() {
             override fun handle(user: AuthUser?) {
-                AuthRepository.INSTANCE.setAuthToken(getApplication<Application>().applicationContext, user!!.token)
+                AuthRepository.setAuthToken(getApplication<Application>().applicationContext, user!!.token!!)
                 val ret = ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>(user, null)
-                currentUser!!.postValue(ret)
+                currentUser.postValue(ret)
             }
 
             override fun handleErrors(vararg errors: AuthRepository.ErrorCodes) {
@@ -68,7 +81,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 }
 
                 val ret = ErrorWrapper<AuthUser, AuthRepository.ErrorCodes>(null, errors)
-                currentUser!!.postValue(ret)
+                currentUser.postValue(ret)
             }
         })
 
