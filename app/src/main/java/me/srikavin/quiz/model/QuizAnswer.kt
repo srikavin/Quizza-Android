@@ -11,6 +11,6 @@ import java.util.*
 data class QuizAnswer(
         @Expose override var id: ResourceId = ResourceId(UUID.randomUUID().toString()),
         @Expose @SerializedName("text") override var contents: String = "",
-        @Expose override var isCorrect: Boolean = false,
+        @Expose @SerializedName("correct") override var isCorrect: Boolean = false,
         @Expose var image: Image? = null
 ) : QuizAnswerModel

@@ -1,116 +1,153 @@
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/detail_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <Button
-        android:id="@+id/button2"
-        style="@style/Widget.AppCompat.Button.Borderless.Colored"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:text="@string/quiz_detail_battle"
-
-        android:backgroundTint="@color/colorPrimary"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/ic_battle_icon_24dp"
-        android:tint="@android:color/white"
-        app:layout_anchorGravity="bottom|right|end" />
-
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/appbar"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/app_bar_height"
-        android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark">
-        <com.google.android.material.appbar.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark"
-            app:contentScrim="@color/colorPrimary"
-            app:expandedTitleMarginEnd="@dimen/article_keylines"
-            app:expandedTitleMarginStart="@dimen/md_keylines"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:navigationIcon="?attr/homeAsUpIndicator">
-            <ImageView
-                android:id="@+id/image"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fitsSystemWindows="true"
-                android:scaleType="centerCrop"
-                app:layout_collapseMode="parallax"
-                tools:background="@drawable/ic_launcher_background" />
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:navigationIcon="?attr/homeAsUpIndicator"
-                app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
-        </com.google.android.material.appbar.CollapsingToolbarLayout>
-    </com.google.android.material.appbar.AppBarLayout>
-
-    <androidx.core.widget.NestedScrollView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/quiz_detail_scroll_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/detail_fragment_quiz_image"
+            android:layout_width="78dp"
+            android:layout_height="78dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:transitionName="quiz_image"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:srcCompat="@tools:sample/backgrounds/scenic[5]" />
+
+        <TextView
+            android:id="@+id/detail_fragment_quiz_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@android:color/black"
+            android:textSize="24sp"
+            android:transitionName="quiz_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/detail_fragment_quiz_image"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Quiz Title" />
+
+        <TextView
+            android:id="@+id/detail_fragment_quiz_author"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/colorPrimaryLight"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/detail_fragment_quiz_image"
+            app:layout_constraintTop_toBottomOf="@+id/detail_fragment_quiz_title"
+            tools:text="Srikavin Ramkumar" />
+
+        <TextView
+            android:id="@+id/detail_fragment_quiz_description"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/barrier2"
+            tools:text="Quiz Description. This quiz includes FBLA history and important people. " />
+
+        <View
+            android:id="@+id/divider3"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="?android:attr/listDivider"
+            app:layout_constraintTop_toTopOf="@+id/barrier" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="detail_fragment_quiz_title,detail_fragment_quiz_image"
+            tools:layout_editor_absoluteX="384dp"
+            tools:layout_editor_absoluteY="94dp" />
+
+        <androidx.constraintlayout.widget.Barrier
+            android:id="@+id/barrier"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:barrierDirection="bottom"
+            app:constraint_referenced_ids="detail_fragment_quiz_description"
+            tools:layout_editor_absoluteY="777dp" />
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:id="@+id/linearLayout2"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:minWidth="320dp"
+            android:minHeight="200dp"
             android:orientation="vertical"
-            android:paddingLeft="@dimen/article_keylines"
-            android:paddingTop="@dimen/md_keylines"
-            android:paddingRight="@dimen/md_keylines">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detail_fragment_questions_label3">
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/md_keylines"
-                android:text="Description"
-                android:textColor="?attr/colorAccent"
-                android:textSize="@dimen/article_titles" />
+            <include layout="@layout/game_mode_list" />
 
-            <TextView
-                android:id="@+id/quiz_detail_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                tools:text="Quiz Description" />
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/md_keylines"
-                android:layout_marginBottom="@dimen/md_keylines"
-                android:text="Questions"
-                android:textColor="?attr/colorAccent"
-                android:textSize="@dimen/article_titles" />
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:listitem="@layout/quiz_detail_question_item" />
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/quiz_detail_battle_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/ic_battle_icon_24dp"
-        android:tint="@android:color/white"
-        app:backgroundTint="@color/colorPrimary"
-        app:layout_anchor="@id/collapsing_toolbar"
-        app:layout_anchorGravity="bottom|right|end" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/detail_fragment_quiz_questions_recycler"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="16dp"
+            android:isScrollContainer="false"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/detail_fragment_questions_label"
+            tools:listitem="@layout/quiz_detail_question_item" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <TextView
+            android:id="@+id/detail_fragment_questions_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="sans-serif-light"
+            android:text="Questions"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:typeface="normal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+
+        <TextView
+            android:id="@+id/detail_fragment_questions_label3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:fontFamily="sans-serif-light"
+            android:text="Play"
+            android:textColor="@android:color/black"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:typeface="normal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/divider3" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>

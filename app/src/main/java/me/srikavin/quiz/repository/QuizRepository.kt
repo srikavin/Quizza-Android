@@ -6,10 +6,11 @@ import io.reactivex.Completable
 import io.reactivex.Single
 import me.srikavin.quiz.model.Quiz
 import me.srikavin.quiz.repository.internet.InternetQuizRepository
+import me.srikavin.quiz.repository.local.LocalQuizRepository
 import me.srikavin.quiz.view.main.TAG
 
 class QuizRepository(private val context: Context) {
-    private val quizRepository: QuizService = InternetQuizRepository() //LocalQuizRepository(context, InternetQuizRepository())
+    private val quizRepository: QuizService = LocalQuizRepository(InternetQuizRepository())
 
     fun getQuizByID(id: String): Single<Quiz> {
         return quizRepository.getQuizByID(id)

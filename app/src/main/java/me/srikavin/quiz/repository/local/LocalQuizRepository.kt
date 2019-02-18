@@ -18,19 +18,33 @@ import java.util.concurrent.ConcurrentHashMap
 internal class LocalQuizRepository(private val onlineService: QuizRepository.QuizService) : QuizRepository.QuizService, KoinComponent {
 
     override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        localQuizzes.remove(quiz.id.idString)
+        return onlineService.deleteQuiz(context, quiz)
     }
 
     override fun getOwned(context: Context): Single<List<Quiz>> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return onlineService.getOwned(context).map {
+            val toRet: ArrayList<Quiz> = ArrayList(appendLocalToQuizTitles(localQuizzes.values))
+            toRet.addAll(it)
+            return@map toRet
+        }
     }
 
     override fun getQuizzes(): Single<List<Quiz>> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return onlineService.getQuizzes().map {
+            val toRet: ArrayList<Quiz> = ArrayList(appendLocalToQuizTitles(localQuizzes.values))
+            toRet.addAll(it)
+            return@map toRet
+        }
     }
 
     override fun getQuizByID(id: String): Single<Quiz> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (localQuizzes.containsKey(id)) {
+            val local = localQuizzes[id]!!.copy()
+            local.isLocal = true
+            return Single.create { emitter -> emitter.onSuccess(local) }
+        }
+        return onlineService.getQuizByID(id)
     }
 
     private val gson: Gson = GsonBuilder().create()
@@ -68,7 +82,7 @@ internal class LocalQuizRepository(private val onlineService: QuizRepository.Qui
     private fun appendLocalToQuizTitles(quizzes: Collection<Quiz>): List<Quiz> {
         return quizzes.map { quiz ->
             quiz.copy(
-                    title = "$quiz.title (local)",
+                    title = "${quiz.title} (local)",
                     isLocal = true
             )
         }

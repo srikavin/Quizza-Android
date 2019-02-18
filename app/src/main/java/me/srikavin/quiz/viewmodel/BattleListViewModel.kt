@@ -28,10 +28,11 @@ sealed class BattleListChange {
 data class BattleListState(
         val quizzes: List<Quiz> = emptyList(),
         val loading: Boolean = false,
+        val loaded: Boolean = false,
         val error: Boolean = false
 ) : BaseState
 
-class BattleViewModel(initialState: BattleListState?) : BaseViewModel<BattleListAction, BattleListState>(), KoinComponent {
+class BattleListViewModel(initialState: BattleListState?) : BaseViewModel<BattleListAction, BattleListState>(), KoinComponent {
     private val quizRepository: QuizRepository = get()
     override val initialState = initialState ?: BattleListState()
 
@@ -45,6 +46,7 @@ class BattleViewModel(initialState: BattleListState?) : BaseViewModel<BattleList
             is BattleListChange.FinishLoad -> state.copy(
                     quizzes = change.quizzes,
                     loading = false,
+                    loaded = true,
                     error = false
             )
 

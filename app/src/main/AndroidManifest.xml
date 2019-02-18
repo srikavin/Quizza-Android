@@ -23,10 +23,6 @@
             android:name=".view.game.GameActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name=".view.detail.QuizDetail"
-            android:parentActivityName=".view.main.MainActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
-        <activity
             android:name=".view.LoginActivity"
             android:theme="@style/Theme.AppCompat.Light" />
         <activity

@@ -157,6 +157,7 @@ abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler
         }
 
         override fun onFailure(call: Call<W>, t: Throwable) {
+            t.printStackTrace()
             forwardNetworkError(handler)
 
         }
