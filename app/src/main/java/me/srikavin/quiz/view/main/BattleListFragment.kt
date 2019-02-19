@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -51,10 +52,13 @@ class BattleListFragment : Fragment() {
         recyclerView.layoutManager = layoutManager
         recyclerView.adapter = adapter
 
-        recyclerView.viewTreeObserver.addOnPreDrawListener {
-            startPostponedEnterTransition()
-            return@addOnPreDrawListener true
-        }
+        recyclerView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                recyclerView.viewTreeObserver.removeOnPreDrawListener(this)
+                startPostponedEnterTransition()
+                return true
+            }
+        })
 
         recyclerView.addItemDecoration(object : RecyclerView.ItemDecoration() {
             private val halfSpace = 8
@@ -72,6 +76,7 @@ class BattleListFragment : Fragment() {
         if (viewModel.observableState.value?.loaded != true) {
             viewModel.dispatch(BattleListAction.Load)
         }
+
     }
 
     private fun onQuizClick(quiz: Quiz, vh: QuizListViewHolder, position: Int) {

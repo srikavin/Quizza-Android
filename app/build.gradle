@@ -1,8 +1,17 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'org.jetbrains.dokka-android'
 //apply plugin: 'kotlin-kapt'
 
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.17"
+    }
+}
 
 android {
     signingConfigs {
@@ -12,6 +21,11 @@ android {
             keyAlias = 'androiddebugkey'
             keyPassword 'android'
         }
+    }
+    dokka {
+        outputFormat = 'html'
+        outputDirectory = "$buildDir/javadoc"
+        includeNonPublic = true
     }
     lintOptions {
         abortOnError false

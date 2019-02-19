@@ -24,16 +24,8 @@ class QuizRepository(private val context: Context) {
         return quizRepository.getQuizzes()
     }
 
-    fun getQuizzes(handler: QuizResponseHandler) {
-        quizRepository.getQuizzes(handler)
-    }
-
     fun getOwned(): Single<List<Quiz>> {
         return quizRepository.getOwned(context)
-    }
-
-    fun getOwned(handler: QuizResponseHandler) {
-        quizRepository.getOwned(context, handler)
     }
 
     fun createQuiz(quiz: Quiz, handler: QuizResponseHandler) {
@@ -46,10 +38,6 @@ class QuizRepository(private val context: Context) {
 
     fun deleteQuiz(quiz: Quiz): Completable {
         return quizRepository.deleteQuiz(context, quiz)
-    }
-
-    fun deleteQuiz(quiz: Quiz, handler: QuizResponseHandler) {
-        quizRepository.deleteQuiz(context, quiz, handler)
     }
 
     enum class ErrorCodes constructor(private val code: Int) {
@@ -71,12 +59,8 @@ class QuizRepository(private val context: Context) {
         }
     }
 
-    internal interface QuizService {
-        fun getQuizzes(handler: QuizResponseHandler)
-
+    interface QuizService {
         fun getQuizzes(): Single<List<Quiz>>
-
-        fun getOwned(context: Context, handler: QuizResponseHandler)
 
         fun getOwned(context: Context): Single<List<Quiz>>
 
@@ -87,8 +71,6 @@ class QuizRepository(private val context: Context) {
         fun createQuiz(context: Context, quiz: Quiz, handler: QuizResponseHandler)
 
         fun editQuiz(context: Context, id: String, quiz: Quiz, handler: QuizResponseHandler)
-
-        fun deleteQuiz(context: Context, quiz: Quiz, handler: QuizResponseHandler)
 
         fun deleteQuiz(context: Context, quiz: Quiz): Completable
     }

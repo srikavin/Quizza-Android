@@ -7,10 +7,7 @@ import io.reactivex.schedulers.Schedulers
 import me.srikavin.quiz.model.Quiz
 import me.srikavin.quiz.repository.QuizRepository
 import me.srikavin.quiz.repository.Repository
-import okhttp3.ResponseBody
 import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.http.*
 
 internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.ErrorCodes, Repository.ResponseHandler<QuizRepository.ErrorCodes, Quiz>>(), QuizRepository.QuizService {
@@ -28,22 +25,14 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
         quizService = retrofit.create(InternetQuizService::class.java)
     }
 
-    override fun getQuizzes(handler: QuizRepository.QuizResponseHandler) {
-        quizService.getQuizzes().enqueue(DefaultMultiRetrofitCallbackHandler(handler))
-    }
 
     override fun getQuizzes(): Single<List<Quiz>> {
-        return quizService.getQuizzesn().subscribeOn(Schedulers.io())
-    }
-
-    override fun getOwned(context: Context, handler: QuizRepository.QuizResponseHandler) {
-        ensureAuthorized(context)
-        quizService.getOwned().enqueue(DefaultMultiRetrofitCallbackHandler(handler))
+        return quizService.getQuizzes().subscribeOn(Schedulers.io())
     }
 
     override fun getOwned(context: Context): Single<List<Quiz>> {
         ensureAuthorized(context)
-        return quizService.getOwnedn().subscribeOn(Schedulers.io())
+        return quizService.getOwned().subscribeOn(Schedulers.io())
     }
 
 
@@ -67,31 +56,12 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
 
     override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
         ensureAuthorized(context)
-        return quizService.deleteQuizn(quiz.id.idString)
-    }
-
-    override fun deleteQuiz(context: Context, quiz: Quiz, handler: QuizRepository.QuizResponseHandler) {
-        ensureAuthorized(context)
-        quizService.deleteQuiz(quiz.id.idString).enqueue(object : Callback<ResponseBody> {
-            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                handler.handle(null)
-            }
-
-            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
-                forwardNetworkError(handler)
-            }
-        })
+        return quizService.deleteQuiz(quiz.id.idString)
     }
 
     internal interface InternetQuizService {
         @GET("quizzes/")
-        fun getQuizzes(): Call<List<Quiz>>
-
-        @GET("quizzes/")
-        fun getQuizzesn(): Single<List<Quiz>>
-
-        @GET("quizzes/owned")
-        fun getOwned(): Call<List<Quiz>>
+        fun getQuizzes(): Single<List<Quiz>>
 
         @GET("quizzes/{id}")
         fun getQuizByIDn(@Path("id") id: String): Single<Quiz>
@@ -103,13 +73,10 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
         fun createQuiz(@Body quiz: Quiz): Call<Quiz>
 
         @GET("quizzes/owned")
-        fun getOwnedn(): Single<List<Quiz>>
+        fun getOwned(): Single<List<Quiz>>
 
         @DELETE("quizzes/{id}")
-        fun deleteQuiz(@Path("id") id: String): Call<ResponseBody>
-
-        @DELETE("quizzes/{id}")
-        fun deleteQuizn(@Path("id") id: String): Completable
+        fun deleteQuiz(@Path("id") id: String): Completable
 
         @PUT("quizzes/{id}")
         fun editQuiz(@Path("id") id: String, @Body quiz: Quiz): Call<Quiz>

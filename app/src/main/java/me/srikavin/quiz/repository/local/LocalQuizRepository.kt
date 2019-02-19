@@ -15,7 +15,10 @@ import org.koin.standalone.get
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
-internal class LocalQuizRepository(private val onlineService: QuizRepository.QuizService) : QuizRepository.QuizService, KoinComponent {
+/**
+ * Allows
+ */
+class LocalQuizRepository(private val onlineService: QuizRepository.QuizService) : QuizRepository.QuizService, KoinComponent {
 
     override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
         localQuizzes.remove(quiz.id.idString)
@@ -88,38 +91,6 @@ internal class LocalQuizRepository(private val onlineService: QuizRepository.Qui
         }
     }
 
-    override fun getQuizzes(handler: QuizRepository.QuizResponseHandler) {
-        onlineService.getQuizzes(object : QuizRepository.QuizResponseHandler() {
-            override fun handleMultiple(quizzes: List<Quiz>) {
-                // Necessary in case that the list returned by the online service is immutable
-                // Append (local) to all local quiz titles
-                val toRet = ArrayList(
-                        appendLocalToQuizTitles(localQuizzes.values))
-                toRet.addAll(quizzes)
-                handler.handleMultiple(toRet)
-            }
-
-            override fun handleErrors(vararg errors: QuizRepository.ErrorCodes) {
-                handler.handleMultiple(ArrayList(appendLocalToQuizTitles(localQuizzes.values)))
-            }
-        })
-    }
-
-    override fun getOwned(context: Context, handler: QuizRepository.QuizResponseHandler) {
-        onlineService.getOwned(context, object : QuizRepository.QuizResponseHandler() {
-            override fun handleMultiple(quizzes: List<Quiz>) {
-                //Necessary in case that the list returned by the online service is immutable
-                val toRet = ArrayList(appendLocalToQuizTitles(localQuizzes.values))
-                toRet.addAll(quizzes)
-                handler.handleMultiple(toRet)
-            }
-
-            override fun handleErrors(vararg errors: QuizRepository.ErrorCodes) {
-                handler.handleMultiple(ArrayList(appendLocalToQuizTitles(localQuizzes.values)))
-            }
-        })
-    }
-
     override fun getQuizByID(id: String, handler: QuizRepository.QuizResponseHandler) {
         if (localQuizzes.containsKey(id)) {
             val local = localQuizzes[id]!!.copy()
@@ -170,23 +141,6 @@ internal class LocalQuizRepository(private val onlineService: QuizRepository.Qui
                 handler.handleErrors(*errors)
             }
         })
-    }
-
-    override fun deleteQuiz(context: Context, quiz: Quiz, handler: QuizRepository.QuizResponseHandler) {
-        //Delete locally as well
-        localQuizzes.remove(quiz.id.idString)
-        onlineService.deleteQuiz(context, quiz, object : QuizRepository.QuizResponseHandler() {
-            override fun handle(quiz: Quiz?) {
-                super.handle(quiz)
-                handler.handle(quiz)
-            }
-
-            override fun handleErrors(vararg errors: QuizRepository.ErrorCodes) {
-                super.handleErrors(*errors)
-                handler.handle(null)
-            }
-        })
-        this@LocalQuizRepository.save()
     }
 
     companion object {
