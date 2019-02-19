@@ -57,7 +57,7 @@
     <string name="game_mode_online_description">Perfect for learning a topic with a friend. This mode creates a competitive atmosphere that is beneficial to learning.</string>
     <string name="game_mode_online_title">Play 1v1 Online</string>
     <string name="game_mode_offline_description">Perfect for initially learning a topic. This mode is helpful for gaining a deeper understanding of the material present in this quiz.</string>
-    <string name="game_mode_offline_title">Study Alone</string>
+    <string name="game_mode_offline_title">Individual Study</string>
     <plurals name="contains_x_questions">
         <item quantity="one">Contains %d question</item>
         <item quantity="other">Contains %d questions</item>

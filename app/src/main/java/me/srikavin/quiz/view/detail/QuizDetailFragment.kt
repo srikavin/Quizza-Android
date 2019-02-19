@@ -88,6 +88,10 @@ class QuizDetailFragment : Fragment() {
 
         viewModel.dispatch(QuizDetailAction.LoadQuiz(id))
         viewModel.observableState.observe(this, Observer(this::render))
+
+        view.findViewById<View>(R.id.game_mode_select_online).setOnClickListener {
+            handleBattleClick(id)
+        }
     }
 
     private fun handleBattleClick(id: String) {
