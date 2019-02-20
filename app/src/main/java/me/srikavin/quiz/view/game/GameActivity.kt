@@ -45,5 +45,6 @@ class GameActivity : AppCompatActivity() {
 
     companion object {
         const val EXTRA_QUIZ_ID = "QUIZ_ID"
+        const val ONLINE = "QUIZ_ONLINE"
     }
 }

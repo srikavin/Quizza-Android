@@ -33,11 +33,11 @@ private fun calculateTimeLeft(instant: Instant): Long {
 
 class RemoteGameRepository : GameRepository.GameService {
     override fun quit(id: GameID) {
+        gameMap.remove(id)
         gameMap[id]?.gameClient?.shutdown()
         gameMap[id]?.gameClient?.onMatchmakingStateUpdate = {}
         gameMap[id]?.gameClient?.onGameStateUpdate = {}
         gameMap[id]?.timeLeftJob?.cancel()
-        gameMap.remove(id)
     }
 
     private data class GameItem(
@@ -61,12 +61,20 @@ class RemoteGameRepository : GameRepository.GameService {
         }
     }
 
+    override fun stopMatchmaking() {
+        for (e: GameItem in gameMap.values) {
+            if (e.state?.quiz == null) {
+                e.gameClient.stopMatchmaking()
+            }
+        }
+    }
+
     override fun createGame(quiz: Quiz, handler: GameRepository.GameResponseHandler) {
         val exceptionHandler = createExceptionHandler(handler)
 
         GlobalScope.launch(exceptionHandler) {
             println("launching matchmaker and client")
-            val client = NetworkClient(InetAddress.getByName("quiz-dev-game.srikavin.me"), router)
+            val client = NetworkClient(InetAddress.getByName("quiz-dev-game.srikavin.me"), router, exceptionHandler = exceptionHandler)
             client.start(CoroutineScope(Dispatchers.IO), null as UUID?)
 
             val gameID = GameID(UUID.randomUUID().toString())

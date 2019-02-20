@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import android.widget.Toast.LENGTH_SHORT
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -28,7 +29,6 @@ private const val ARG_IMAGE_TRANSITION_NAME = "image_transition_name"
 private const val ARG_TITLE_TRANSITION_NAME = "title_transition_name"
 
 class QuizDetailFragment : Fragment() {
-
     private lateinit var viewModel: QuizDetailViewModel
     private lateinit var coverImage: ImageView
     private lateinit var description: TextView
@@ -36,6 +36,8 @@ class QuizDetailFragment : Fragment() {
     private lateinit var author: TextView
     private lateinit var questionRecycler: RecyclerView
     private lateinit var questionRecyclerAdapter: QuestionRecyclerAdapter
+    private lateinit var gameModeSelectOnline: View
+    private lateinit var gameModeSelectOffline: View
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -89,16 +91,16 @@ class QuizDetailFragment : Fragment() {
         viewModel.dispatch(QuizDetailAction.LoadQuiz(id))
         viewModel.observableState.observe(this, Observer(this::render))
 
-        view.findViewById<View>(R.id.game_mode_select_online).setOnClickListener {
-            handleBattleClick(id)
-        }
+        gameModeSelectOffline = view.findViewById(R.id.game_mode_select_offline)
+        gameModeSelectOnline = view.findViewById(R.id.game_mode_select_online)
     }
 
-    private fun handleBattleClick(id: String) {
+    private fun handleBattleClick(id: String, online: Boolean) {
         val activity = requireActivity()
 
         val intent = Intent(activity, GameActivity::class.java)
         intent.putExtra(GameActivity.EXTRA_QUIZ_ID, id)
+        intent.putExtra(GameActivity.ONLINE, online)
         activity.startActivity(intent)
     }
 
@@ -141,7 +143,31 @@ class QuizDetailFragment : Fragment() {
 
         if (quiz.author != null) {
             author.text = quiz.author.username
+        } else if (quiz.isLocal) {
+            author.text = getString(R.string.offline_quiz)
         }
+
+        gameModeSelectOffline.setOnClickListener {
+            handleBattleClick(quiz.id.idString, false)
+        }
+
+        if (quiz.isLocal) {
+            gameModeSelectOnline.setOnClickListener {
+                val context = context
+                if (context != null) {
+                    Toast.makeText(
+                            context,
+                            "Cannot play offline quizzes online. Publish it to continue.",
+                            LENGTH_SHORT
+                    ).show()
+                }
+            }
+        } else {
+            gameModeSelectOnline.setOnClickListener {
+                handleBattleClick(quiz.id.idString, true)
+            }
+        }
+
     }
 
     companion object {

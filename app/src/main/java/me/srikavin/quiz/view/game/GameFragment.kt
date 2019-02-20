@@ -1,6 +1,7 @@
 package me.srikavin.quiz.view.game
 
-import android.content.Intent
+import android.app.ProgressDialog
+import android.content.DialogInterface
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
@@ -20,7 +21,6 @@ import com.github.jinatonic.confetti.CommonConfetti
 import me.srikavin.quiz.R
 import me.srikavin.quiz.model.QuizGameState
 import me.srikavin.quiz.repository.GameRepository
-import me.srikavin.quiz.view.main.MainActivity
 import me.srikavin.quiz.viewmodel.GameViewModel
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
@@ -56,14 +56,34 @@ class GameFragment : Fragment() {
         val numberOfQuestions = AtomicInteger()
         val currentQuestion = AtomicInteger()
 
+        countdownText.text = getString(R.string.waiting_for_players)
+
+        val dialog = ProgressDialog(requireContext())
+        dialog.setTitle("Searching for players")
+        dialog.setMessage("1 / 2 players found")
+        dialog.setCancelable(false)
+        dialog.isIndeterminate = true
+
+        dialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel") { _, _ ->
+            viewModel.stopMatchmaking()
+            viewModel.quitGame()
+            if (activity != null) {
+                activity!!.finish()
+            }
+        }
+
+        dialog.show()
+
         viewModel.getQuizByID(id).observe(this, Observer { quiz ->
             if (quiz == null) {
                 Toast.makeText(activity, "Failed to load quiz", Toast.LENGTH_SHORT).show()
-                val intent = Intent(context, MainActivity::class.java)
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                startActivity(intent)
+                activity?.finish()
             }
             viewModel.createGame(quiz!!)
+        })
+
+        viewModel.getCurrentGameID().observe(this, Observer {
+            dialog.dismiss()
         })
 
         viewModel.getGameInfo().observe(this, Observer { info ->

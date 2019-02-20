@@ -87,6 +87,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return quiz
     }
 
+    fun stopMatchmaking() {
+        GameRepository.stopMatchmaking()
+    }
+
     fun createGame(quiz: Quiz) {
         if (createGame == null) {
             createGame = MutableLiveData()

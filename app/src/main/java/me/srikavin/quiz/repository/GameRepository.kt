@@ -26,6 +26,14 @@ object GameRepository {
         localGameRepository.quit(id)
     }
 
+    /**
+     * Sends a signal to the backing repository to stop matchmaking
+     * If offline, this has no effect
+     */
+    fun stopMatchmaking() {
+        localGameRepository.stopMatchmaking()
+    }
+
     enum class ErrorCodes constructor(private val code: Int) {
         UNKNOWN_ERROR(0),
         NETWORK_ERROR(5),
@@ -46,6 +54,8 @@ object GameRepository {
     }
 
     internal interface GameService {
+        fun stopMatchmaking()
+
         fun createGame(quiz: Quiz, handler: GameResponseHandler)
 
         fun submitAnswer(id: GameID, answer: QuizAnswerModel?)

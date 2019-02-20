@@ -31,6 +31,10 @@ class LocalGameRepository : GameRepository.GameService {
         nextQuestion(game)
     }
 
+    override fun stopMatchmaking() {
+        // Do nothing
+    }
+
     override fun submitAnswer(id: GameID, answer: QuizAnswerModel?) {
         val game = idGameMap[id]!!
 
