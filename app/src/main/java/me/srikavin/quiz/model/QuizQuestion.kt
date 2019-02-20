@@ -7,9 +7,21 @@ import me.srikavin.quiz.network.common.model.data.QuizQuestionModel
 import me.srikavin.quiz.network.common.model.data.ResourceId
 import java.util.*
 
+/**
+ * A model class representing a quiz question
+ */
 data class QuizQuestion(
+        /**
+         * A unique identifier used to represent a specific quiz question
+         */
         override val id: ResourceId = ResourceId(UUID.randomUUID().toString()),
+        /**
+         * The contents of this question (i.e. the question itself)
+         */
         @Expose @SerializedName("text") override var contents: String = "",
+        /**
+         * A list of possible answers to this question
+         */
         @Expose override var answers: MutableList<QuizAnswer> = mutableListOf(),
-        var image: Image? = null
+        internal var image: Image? = null
 ) : QuizQuestionModel

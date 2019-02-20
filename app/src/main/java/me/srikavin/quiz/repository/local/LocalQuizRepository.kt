@@ -1,7 +1,9 @@
 package me.srikavin.quiz.repository.local
 
 import android.content.Context
+
 import android.content.SharedPreferences
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -14,41 +16,11 @@ import org.koin.standalone.KoinComponent
 import org.koin.standalone.get
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
-
 /**
- * Allows
+ * Checks the local storage if quizzes are available and proxies requests to the provided online service
+ * if quizzes are not available locally.
  */
 class LocalQuizRepository(private val onlineService: QuizRepository.QuizService) : QuizRepository.QuizService, KoinComponent {
-
-    override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
-        localQuizzes.remove(quiz.id.idString)
-        return onlineService.deleteQuiz(context, quiz)
-    }
-
-    override fun getOwned(context: Context): Single<List<Quiz>> {
-        return onlineService.getOwned(context).map {
-            val toRet: ArrayList<Quiz> = ArrayList(appendLocalToQuizTitles(localQuizzes.values))
-            toRet.addAll(it)
-            return@map toRet
-        }
-    }
-
-    override fun getQuizzes(): Single<List<Quiz>> {
-        return onlineService.getQuizzes().map {
-            val toRet: ArrayList<Quiz> = ArrayList(appendLocalToQuizTitles(localQuizzes.values))
-            toRet.addAll(it)
-            return@map toRet
-        }
-    }
-
-    override fun getQuizByID(id: String): Single<Quiz> {
-        if (localQuizzes.containsKey(id)) {
-            val local = localQuizzes[id]!!.copy()
-            local.isLocal = true
-            return Single.create { emitter -> emitter.onSuccess(local) }
-        }
-        return onlineService.getQuizByID(id)
-    }
 
     private val gson: Gson = GsonBuilder().create()
 
@@ -77,9 +49,39 @@ class LocalQuizRepository(private val onlineService: QuizRepository.QuizService)
         }
     }
 
-    fun save() {
+    override fun getOwned(context: Context): Single<List<Quiz>> {
+        return onlineService.getOwned(context).map {
+            val toRet: ArrayList<Quiz> = ArrayList(appendLocalToQuizTitles(localQuizzes.values))
+            toRet.addAll(it)
+            return@map toRet
+        }
+    }
+
+    override fun getQuizzes(): Single<List<Quiz>> {
+        return onlineService.getQuizzes().map {
+            val toRet: ArrayList<Quiz> = ArrayList(appendLocalToQuizTitles(localQuizzes.values))
+            toRet.addAll(it)
+            return@map toRet
+        }
+    }
+
+    override fun getQuizByID(id: String): Single<Quiz> {
+        if (localQuizzes.containsKey(id)) {
+            val local = localQuizzes[id]!!.copy()
+            local.isLocal = true
+            return Single.create { emitter -> emitter.onSuccess(local) }
+        }
+        return onlineService.getQuizByID(id)
+    }
+
+    private fun save() {
         val sharedPreferences: SharedPreferences = get()
         sharedPreferences.edit().putString("quizzes", gson.toJson(localQuizzes)).apply()
+    }
+
+    override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
+        localQuizzes.remove(quiz.id.idString)
+        return onlineService.deleteQuiz(context, quiz)
     }
 
     private fun appendLocalToQuizTitles(quizzes: Collection<Quiz>): List<Quiz> {
@@ -115,7 +117,7 @@ class LocalQuizRepository(private val onlineService: QuizRepository.QuizService)
             }
 
             override fun handleErrors(vararg errors: QuizRepository.ErrorCodes) {
-//                Toast.makeText(this@LocalQuizRepository.context, "Failed to save online. Saved locally.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Failed to save online. Saved locally.", Toast.LENGTH_SHORT).show()
                 processQuiz(quiz)
                 localQuizzes[quiz.id.idString] = quiz
                 this@LocalQuizRepository.save()
@@ -133,8 +135,9 @@ class LocalQuizRepository(private val onlineService: QuizRepository.QuizService)
             override fun handleErrors(vararg errors: QuizRepository.ErrorCodes) {
                 //If failed to edit quiz online, it is likely that the quiz was created locally
                 // and needs to be created on the server as well
-                if (localQuizzes.containsKey(id)) {
-//                    createQuiz(this@LocalQuizRepository.context, quiz, handler)
+                if (quiz.isLocal) {
+                    localQuizzes[quiz.id.idString] = quiz
+                    createQuiz(context, quiz, handler)
                     return
                 }
 
