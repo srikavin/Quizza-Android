@@ -90,6 +90,7 @@ class LoginFragment : Fragment() {
         }
 
         loginOffline.setOnClickListener {
+            AuthRepository.setAuthToken(requireContext(), "offline")
             Toast.makeText(context, "Offline login successful", Toast.LENGTH_SHORT).show()
             continueToMain()
         }

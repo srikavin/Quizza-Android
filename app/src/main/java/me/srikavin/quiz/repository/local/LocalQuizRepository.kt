@@ -16,6 +16,8 @@ import org.koin.standalone.KoinComponent
 import org.koin.standalone.get
 import java.util.*
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.ArrayList
+
 /**
  * Checks the local storage if quizzes are available and proxies requests to the provided online service
  * if quizzes are not available locally.
@@ -58,7 +60,9 @@ class LocalQuizRepository(private val onlineService: QuizRepository.QuizService)
     }
 
     override fun getQuizzes(): Single<List<Quiz>> {
-        return onlineService.getQuizzes().map {
+        return onlineService.getQuizzes().onErrorReturn {
+            return@onErrorReturn ArrayList(appendLocalToQuizTitles(localQuizzes.values))
+        }.map {
             val toRet: ArrayList<Quiz> = ArrayList(appendLocalToQuizTitles(localQuizzes.values))
             toRet.addAll(it)
             return@map toRet
