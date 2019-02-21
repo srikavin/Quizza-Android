@@ -14,8 +14,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.jinatonic.confetti.CommonConfetti
 import com.google.gson.Gson
 import me.srikavin.quiz.R
-import me.srikavin.quiz.model.QuizQuestion
 import me.srikavin.quiz.network.common.model.data.QuizAnswerModel
+import me.srikavin.quiz.network.common.model.data.QuizQuestionModel
 import me.srikavin.quiz.repository.GameRepository
 
 class GameStatsFragment : Fragment() {
@@ -29,7 +29,7 @@ class GameStatsFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        stats = gson.fromJson(arguments!!.getString(ARG_STATS_JSON), GameRepository.GameStats::class.java)
+        stats = arguments!!.getSerializable(ARG_STATS_JSON) as GameRepository.GameStats
 
         val correctFraction = view!!.findViewById<TextView>(R.id.game_stats_correct_fraction)
         val correctPercentage = view!!.findViewById<TextView>(R.id.game_stats_correct_percentage)
@@ -55,7 +55,7 @@ class GameStatsFragment : Fragment() {
     }
 
     private inner class QuestionAdapter(stats: GameRepository.GameStats) : RecyclerView.Adapter<QuestionCard>() {
-        private val questions: List<QuizQuestion> = stats.quizQuestions
+        private val questions: List<QuizQuestionModel> = stats.quizQuestions
         private val chosen: List<QuizAnswerModel?> = stats.chosen
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): QuestionCard {
@@ -73,7 +73,7 @@ class GameStatsFragment : Fragment() {
 
     private inner class QuestionCard internal constructor(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        internal fun bind(question: QuizQuestion, chosen: QuizAnswerModel?) {
+        internal fun bind(question: QuizQuestionModel, chosen: QuizAnswerModel?) {
             val recyclerView = itemView.findViewById<RecyclerView>(R.id.game_question_answer_list)
             val title = itemView.findViewById<TextView>(R.id.game_question_title)
 
@@ -110,7 +110,7 @@ class GameStatsFragment : Fragment() {
         fun newInstance(stats: GameRepository.GameStats): GameStatsFragment {
             val fragment = GameStatsFragment()
             val args = Bundle()
-            args.putString(ARG_STATS_JSON, gson.toJson(stats))
+            args.putSerializable(ARG_STATS_JSON, stats)
             fragment.arguments = args
             return fragment
         }

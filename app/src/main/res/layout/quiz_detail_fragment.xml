@@ -73,7 +73,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:barrierDirection="bottom"
-            app:constraint_referenced_ids="detail_fragment_quiz_title,detail_fragment_quiz_image"
+            app:constraint_referenced_ids="detail_fragment_quiz_title,detail_fragment_quiz_image,detail_fragment_quiz_author"
             tools:layout_editor_absoluteX="384dp"
             tools:layout_editor_absoluteY="94dp" />
 

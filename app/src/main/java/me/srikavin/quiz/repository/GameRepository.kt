@@ -4,10 +4,10 @@ import android.util.Log
 import me.srikavin.quiz.model.AnswerResponse
 import me.srikavin.quiz.model.Quiz
 import me.srikavin.quiz.model.QuizGameState
-import me.srikavin.quiz.model.QuizQuestion
 import me.srikavin.quiz.network.common.model.data.QuizAnswerModel
 import me.srikavin.quiz.network.common.model.data.QuizQuestionModel
 import me.srikavin.quiz.view.main.TAG
+import java.io.Serializable
 
 inline class GameID(val value: String)
 
@@ -105,7 +105,7 @@ object GameRepository {
         }
     }
 
-    class GameStats(val correct: Int, val score: Int, val chosen: List<QuizAnswerModel?>, val quizQuestions: List<QuizQuestion>) {
+    class GameStats(val correct: Int, val score: Int, val chosen: List<QuizAnswerModel?>, val quizQuestions: List<QuizQuestionModel>) : Serializable {
         val total: Int = quizQuestions.size
         val percentCorrect: Double
 

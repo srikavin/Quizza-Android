@@ -6,9 +6,13 @@ import me.srikavin.quiz.model.Quiz
 import me.srikavin.quiz.model.QuizGameState
 import me.srikavin.quiz.network.client.NetworkClient
 import me.srikavin.quiz.network.client.NetworkGameClient
+import me.srikavin.quiz.network.common.MessageHandler
 import me.srikavin.quiz.network.common.MessageRouter
+import me.srikavin.quiz.network.common.message.GAME_END_PACKET_ID
+import me.srikavin.quiz.network.common.message.game.GameEndMessage
 import me.srikavin.quiz.network.common.message.game.GameState
 import me.srikavin.quiz.network.common.model.data.QuizAnswerModel
+import me.srikavin.quiz.network.common.model.game.GameClient
 import me.srikavin.quiz.network.common.model.matchmaker.MatchmakerStates
 import me.srikavin.quiz.network.common.model.network.RejoinToken
 import org.threeten.bp.Instant
@@ -33,6 +37,7 @@ private fun calculateTimeLeft(instant: Instant): Long {
 
 class RemoteGameRepository : GameRepository.GameService {
     override fun quit(id: GameID) {
+        stopMatchmaking()
         gameMap.remove(id)
         gameMap[id]?.gameClient?.shutdown()
         gameMap[id]?.gameClient?.onMatchmakingStateUpdate = {}
@@ -42,15 +47,17 @@ class RemoteGameRepository : GameRepository.GameService {
 
     private data class GameItem(
             val handler: GameRepository.GameResponseHandler,
+            val router: MessageRouter,
             val gameClient: NetworkGameClient,
             var timeLeftJob: Job?,
             val rejoinToken: RejoinToken,
             var state: GameState?,
-            var submittedAnswer: Boolean = false
+            var submittedAnswer: Boolean = false,
+            var numberCorrect: Int = 0,
+            val chosen: MutableList<QuizAnswerModel> = mutableListOf()
     )
 
     private val gameMap: MutableMap<GameID, GameItem> = mutableMapOf()
-    private val router: MessageRouter = MessageRouter()
 
     private suspend fun handleGameTimer(handler: GameRepository.GameResponseHandler, timeLeft: Long) {
         var t = 30
@@ -74,19 +81,35 @@ class RemoteGameRepository : GameRepository.GameService {
 
         GlobalScope.launch(exceptionHandler) {
             println("launching matchmaker and client")
-            val client = NetworkClient(InetAddress.getByName("quiz-dev-game.srikavin.me"), router, exceptionHandler = exceptionHandler)
+            val messageRouter = MessageRouter()
+
+            val client = NetworkClient(InetAddress.getByName("quiz-dev-game.srikavin.me"), messageRouter, exceptionHandler = exceptionHandler)
             client.start(CoroutineScope(Dispatchers.IO), null as UUID?)
 
             val gameID = GameID(UUID.randomUUID().toString())
 
-            val gameClient = NetworkGameClient(client, router)
+            val gameClient = NetworkGameClient(client, messageRouter)
 
 
-            val game = GameItem(handler, gameClient, null, client.rejoinToken, null)
+            val game = GameItem(handler, messageRouter, gameClient, null, client.rejoinToken, null)
             println(game)
 
             gameMap[gameID] = game
 
+
+            messageRouter.registerHandler(GAME_END_PACKET_ID, object : MessageHandler<GameEndMessage> {
+                override fun handle(client: GameClient, message: GameEndMessage) {
+                    val stats = GameRepository.GameStats(
+                            game.numberCorrect,
+                            game.state?.players?.find { it.id == client.backing.id }?.score ?: 0,
+                            game.chosen,
+                            game.state?.quiz?.questions ?: mutableListOf()
+                    )
+                    handler.handleGameStateChange(QuizGameState.FINISHED)
+                    handler.handleGameStats(stats)
+                    println("Handling game stats")
+                }
+            })
 
             gameClient.onMatchmakingStateUpdate = { matchmakingState ->
                 println(matchmakingState)
@@ -138,6 +161,11 @@ class RemoteGameRepository : GameRepository.GameService {
                 curQuestion,
                 curQuestion.answers.filter { it.isCorrect }
         ))
+
+        if (answer.isCorrect) {
+            game.numberCorrect++
+        }
+        game.chosen.add(answer)
         game.submittedAnswer = true
 
     }
