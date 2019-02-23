@@ -13,14 +13,6 @@ buildscript {
 }
 
 android {
-    signingConfigs {
-        debug {
-            storeFile file('/home/srikavin/.android/debug.keystore')
-            storePassword 'android'
-            keyAlias = 'androiddebugkey'
-            keyPassword 'android'
-        }
-    }
     dokka {
         outputFormat = 'html'
         outputDirectory = "$buildDir/javadoc"
