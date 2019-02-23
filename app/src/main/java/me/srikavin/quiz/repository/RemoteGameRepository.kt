@@ -87,7 +87,7 @@ class RemoteGameRepository : GameRepository.GameService {
             println("launching matchmaker and client")
             val messageRouter = MessageRouter()
 
-            val client = NetworkClient(InetAddress.getByName("quiz-dev-game.srikavin.me"), messageRouter, exceptionHandler = exceptionHandler)
+            val client = NetworkClient(InetAddress.getByName("quiz-game.srikavin.me"), messageRouter, exceptionHandler = exceptionHandler)
             client.start(CoroutineScope(Dispatchers.IO), null as UUID?)
 
             val gameID = GameID(UUID.randomUUID().toString())

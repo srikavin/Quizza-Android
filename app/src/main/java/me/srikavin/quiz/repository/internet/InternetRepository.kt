@@ -36,7 +36,7 @@ internal abstract class InternetRepository<T, E : Enum<*>, R : Repository.Respon
         interceptor = AuthRequestInterceptor()
         val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
         retrofit = Retrofit.Builder()
-                .baseUrl("https://quiz-dev.srikavin.me/api/v1/")
+                .baseUrl("https://quiz.srikavin.me/api/v1/")
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .client(client)

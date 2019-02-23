@@ -55,8 +55,7 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
     }
 
     override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
-//        ensureAuthorized(context)
-        println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+        ensureAuthorized(context)
         return quizService.deleteQuiz(quiz.id.idString)
     }
 
