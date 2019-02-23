@@ -91,7 +91,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         GameRepository.stopMatchmaking()
     }
 
-    fun createGame(quiz: Quiz) {
+    fun createGame(quiz: Quiz, remote: Boolean) {
         if (createGame == null) {
             createGame = MutableLiveData()
             GameRepository.createGame(quiz, object : GameRepository.GameResponseHandler() {
@@ -127,7 +127,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                     timeRemaining.postValue(timeLeft)
 
                 }
-            })
+            }, remote)
         }
         return
     }

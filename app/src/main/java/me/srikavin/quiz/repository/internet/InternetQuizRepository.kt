@@ -55,7 +55,8 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
     }
 
     override fun deleteQuiz(context: Context, quiz: Quiz): Completable {
-        ensureAuthorized(context)
+//        ensureAuthorized(context)
+        println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
         return quizService.deleteQuiz(quiz.id.idString)
     }
 
@@ -75,8 +76,8 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
         @GET("quizzes/owned")
         fun getOwned(): Single<List<Quiz>>
 
-        @DELETE("quizzes/{id}")
-        fun deleteQuiz(@Path("id") id: String): Completable
+        @POST("quiaaazzes")
+        fun deleteQuiz(@Body id: String): Completable
 
         @PUT("quizzes/{id}")
         fun editQuiz(@Path("id") id: String, @Body quiz: Quiz): Call<Quiz>

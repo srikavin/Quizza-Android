@@ -22,7 +22,6 @@ import me.srikavin.quiz.R
 import me.srikavin.quiz.model.QuizGameState
 import me.srikavin.quiz.repository.GameRepository
 import me.srikavin.quiz.viewmodel.GameViewModel
-import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
 class GameFragment : Fragment() {
@@ -34,24 +33,30 @@ class GameFragment : Fragment() {
         return inflater.inflate(R.layout.game_fragment, container, false)
     }
 
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         viewModel = ViewModelProviders.of(this).get(GameViewModel::class.java)
 
-        val title = view!!.findViewById<TextView>(R.id.game_question_title)
-        val answerRecycler = view!!.findViewById<RecyclerView>(R.id.game_question_answer_list)
-        val countdownBar = view!!.findViewById<ProgressBar>(R.id.game_time_progress_bar)
-        val countdownText = view!!.findViewById<TextView>(R.id.game_time_countdown)
-        val gamePosition = view!!.findViewById<TextView>(R.id.game_position)
-        val container = view!!.findViewById<ViewGroup>(R.id.game_container)
+        val title = view.findViewById<TextView>(R.id.game_question_title)
+        val answerRecycler = view.findViewById<RecyclerView>(R.id.game_question_answer_list)
+        val countdownBar = view.findViewById<ProgressBar>(R.id.game_time_progress_bar)
+        val countdownText = view.findViewById<TextView>(R.id.game_time_countdown)
+        val gamePosition = view.findViewById<TextView>(R.id.game_position)
+        val container = view.findViewById<ViewGroup>(R.id.game_container)
 
         val adapter = GameAnswerAdapter(answerRecycler, { viewModel.submitAnswer(it) }, requireContext())
 
         answerRecycler.layoutManager = LinearLayoutManager(context)
         answerRecycler.adapter = adapter
 
-        val id = arguments?.getString("id")
+        val args = arguments ?: throw IllegalStateException("Arguments must not be null!")
+
+        val id = args.getString(ARG_GAME_ID)
                 ?: throw IllegalArgumentException("Id is required to create a GameFragment")
+
+        val remote = args.getBoolean(ARG_GAME_REMOTE, false)
+
 
         val numberOfQuestions = AtomicInteger()
         val currentQuestion = AtomicInteger()
@@ -79,7 +84,7 @@ class GameFragment : Fragment() {
                 Toast.makeText(activity, "Failed to load quiz", Toast.LENGTH_SHORT).show()
                 activity?.finish()
             }
-            viewModel.createGame(quiz!!)
+            viewModel.createGame(quiz!!, remote)
         })
 
         viewModel.getCurrentGameID().observe(this, Observer {
@@ -135,20 +140,6 @@ class GameFragment : Fragment() {
                 displayStatsFragment(stats)
             }
         })
-
-        Timer().schedule(object : TimerTask() {
-            override fun run() {
-                if (activity == null) {
-                    return
-                }
-                activity!!.runOnUiThread {
-                    if (viewModel.getGameState().value == QuizGameState.FINISHED) {
-                        val stats = viewModel.getGameStats().value ?: return@runOnUiThread
-                        displayStatsFragment(stats)
-                    }
-                }
-            }
-        }, 1000)
     }
 
     override fun onDestroy() {
@@ -161,11 +152,14 @@ class GameFragment : Fragment() {
     }
 
     companion object {
+        const val ARG_GAME_ID = "GAME_ID"
+        const val ARG_GAME_REMOTE = "GAME_IS_REMOTE"
 
-        fun newInstance(id: String): GameFragment {
+        fun newInstance(id: String, isRemote: Boolean): GameFragment {
             val fragment = GameFragment()
             val bundle = Bundle()
-            bundle.putString("id", id)
+            bundle.putString(ARG_GAME_ID, id)
+            bundle.putBoolean(ARG_GAME_REMOTE, isRemote)
             fragment.arguments = bundle
             return fragment
         }

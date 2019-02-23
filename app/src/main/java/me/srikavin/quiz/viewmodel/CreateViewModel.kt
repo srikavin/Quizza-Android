@@ -10,28 +10,81 @@ import me.srikavin.quiz.repository.QuizRepository
 import org.koin.standalone.KoinComponent
 import org.koin.standalone.get
 
+/**
+ * Possible actions that can be relayed to this view model.
+ */
 sealed class CreateQuizAction : BaseAction {
+    /**
+     * Requests loading the quizzes
+     */
     object Load : CreateQuizAction()
+
+    /**
+     * Requests refreshing the current quizzes
+     */
     object Refresh : CreateQuizAction()
-    data class DeleteQuiz(val quiz: Quiz) : CreateQuizAction()
-    data class ToggleExpansion(val quiz: Quiz) : CreateQuizAction()
+
+    /**
+     * Requests the deletion of a quiz
+     */
+    data class DeleteQuiz(
+            /**
+             * The quiz to delete
+             */
+            val quiz: Quiz
+    ) : CreateQuizAction()
+
+    /**
+     * Requests the expansion of a quiz
+     */
+    data class ToggleExpansion(
+            /**
+             * The quiz to toggle expansion for
+             */
+            val quiz: Quiz
+    ) : CreateQuizAction()
 }
 
+/**
+ * Quiz state changes that are derived from [CreateQuizAction] and applied to [CreateQuizState]
+ */
 sealed class CreateQuizChange {
-    object Loading : CreateQuizChange()
-    data class FinishLoad(val quizzes: List<Quiz>) : CreateQuizChange()
-    data class Error(val error: Throwable?) : CreateQuizChange()
-    data class ToggleExpansion(val quiz: Quiz) : CreateQuizChange()
+    internal object Loading : CreateQuizChange()
+    internal data class FinishLoad(val quizzes: List<Quiz>) : CreateQuizChange()
+    internal data class Error(val error: Throwable?) : CreateQuizChange()
+    internal data class ToggleExpansion(val quiz: Quiz) : CreateQuizChange()
 }
 
+/**
+ * The state of the view. This should be used to render the UI.
+ */
 data class CreateQuizState(
+        /**
+         * A list of quizzes loaded
+         */
         val quizzes: List<Quiz> = emptyList(),
+        /**
+         * Whether network requests are still in progress
+         */
         val loading: Boolean = false,
+        /**
+         * Whether an error occurred
+         */
         val error: Boolean = false,
+        /**
+         * A set of expanded quizzes
+         */
         val expanded: Set<Quiz> = HashSet()
 ) : BaseState
 
+/**
+ * Manages the state behind [CreateFragment][me.srikavin.quiz.view.main.CreateFragment] and handles
+ * any actions triggered, resulting in changes to the state.
+ */
 class CreateViewModel(initialState: CreateQuizState?) : BaseViewModel<CreateQuizAction, CreateQuizState>(), KoinComponent {
+    /**
+     * The state to initialize the view model.
+     */
     override val initialState = initialState ?: CreateQuizState()
     private val quizRepository: QuizRepository = get()
 
@@ -94,8 +147,8 @@ class CreateViewModel(initialState: CreateQuizState?) : BaseViewModel<CreateQuiz
 
 
         val deleteAction = actions.ofType<CreateQuizAction.DeleteQuiz>()
-                .flatMap {
-                    return@flatMap quizRepository
+                .switchMap {
+                    return@switchMap quizRepository
                             .deleteQuiz(it.quiz)
                             .observeOn(AndroidSchedulers.mainThread())
                             .toObservable<Unit>()

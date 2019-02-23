@@ -24,11 +24,11 @@ import kotlin.collections.ArrayList
 /**
  * @param <E> The enum containing possible error codes returned from the api
 </E> */
-abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler<E, T>> : Repository(), KoinComponent {
+internal abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler<E, T>> : Repository(), KoinComponent {
     private var authRepository: AuthRepository = AuthRepository
     protected val retrofit: Retrofit
     protected val gson: Gson = GsonBuilder().excludeFieldsWithoutExposeAnnotation().create()
-    protected val jsonParser = JsonParser()
+    private val jsonParser = JsonParser()
     private val interceptor: AuthRequestInterceptor
     private val statusRepository: Status
 
@@ -165,7 +165,7 @@ abstract class InternetRepository<T, E : Enum<*>, R : Repository.ResponseHandler
         abstract fun handle(data: W?)
     }
 
-    protected inner class DefaultRetrofitCallbackHandler(handler: R) : RetrofitCallbackHandler<T>(handler) {
+    protected open inner class DefaultRetrofitCallbackHandler(handler: R) : RetrofitCallbackHandler<T>(handler) {
 
         override fun handle(data: T?) {
             handler.handle(data)

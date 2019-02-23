@@ -13,7 +13,15 @@ import me.srikavin.quiz.repository.GameID
 import me.srikavin.quiz.repository.GameRepository
 import java.util.*
 
+/**
+ * An implementation of [GameRepository.GameService] that runs locally without an online game server.
+ * These operations run entirely on the client side without internet connections. However, a quiz
+ * instance must be available to create a game.
+ */
 class LocalGameRepository : GameRepository.GameService {
+    /**
+     *
+     */
     override fun quit(id: GameID) {
         idGameMap.remove(id)
     }
@@ -21,16 +29,22 @@ class LocalGameRepository : GameRepository.GameService {
     private val idGameMap = HashMap<GameID, Game>()
 
     override fun createGame(quiz: Quiz, handler: GameRepository.GameResponseHandler) {
-        val id = GameID(UUID.randomUUID().toString())
+        val id = GameID("${UUID.randomUUID()}-local")
         val game = Game(id, quiz, handler)
+
         idGameMap[id] = game
         game.state = QuizGameState.WAITING
+
         handler.handleGameCreate(id)
         handler.handleGameInfo(GameRepository.GameInfo(30, quiz.questions.size))
+
         game.state = QuizGameState.IN_PROGRESS
         nextQuestion(game)
     }
 
+    /**
+     * Stops matchmaking if applicable
+     */
     override fun stopMatchmaking() {
         // Do nothing
     }
@@ -81,12 +95,13 @@ class LocalGameRepository : GameRepository.GameService {
 
             GlobalScope.launch {
                 val curItem = game.currentQuestion
-                repeat(maxTime) { time ->
+                repeat(maxTime + 1) { time ->
+                    if (curItem != game.currentQuestion) {
+                        coroutineContext.cancel()
+                        return@repeat
+                    }
                     if (time >= maxTime) {
                         submitAnswer(game.id, null)
-                        coroutineContext.cancel()
-                    }
-                    if (curItem != game.currentQuestion) {
                         coroutineContext.cancel()
                     }
                     game.handler.handleGameTimeChange(maxTime - time)
@@ -98,6 +113,10 @@ class LocalGameRepository : GameRepository.GameService {
             game.state = QuizGameState.FINISHED
             game.handler.handleGameStats(GameRepository.GameStats(game.correct, game.score, game.chosen, game.quiz.questions))
         }
+    }
+
+    override fun hasGame(id: GameID): Boolean {
+        return idGameMap.containsKey(id)
     }
 
 }

@@ -7,6 +7,11 @@ import com.google.gson.annotations.Expose
  */
 class AuthUser {
     /**
+     * The username of the user
+     */
+    @Expose
+    val username: String = ""
+    /**
      * Represents whether the user is authenticated
      */
     @Expose

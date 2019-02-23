@@ -46,6 +46,10 @@ object AuthRepository {
         setAuthToken(context, null)
     }
 
+    fun getUser(): AuthUser? {
+        return internetAuthRepository.getUser()
+    }
+
     enum class ErrorCodes(private val code: Int) {
         UNKNOWN_ERROR(0),
         USERNAME_OR_PASSWORD_INCORRECT(1),
@@ -77,6 +81,8 @@ object AuthRepository {
         fun loginOauthGoogle(token: String, handler: AuthResponseHandler)
 
         fun verifyAuth(context: Context, handler: AuthResponseHandler)
+
+        fun getUser(): AuthUser?
     }
 
     abstract class AuthResponseHandler : Repository.ResponseHandler<ErrorCodes, AuthUser>() {
@@ -103,6 +109,8 @@ object AuthRepository {
     internal class InternetAuthRepository : InternetRepository<AuthUser, ErrorCodes, AuthResponseHandler>(), AuthService {
         private val userService: InternetUserService
 
+        private var currentUser: AuthUser? = null
+
         init {
             userService = retrofit.create(InternetUserService::class.java)
         }
@@ -115,16 +123,34 @@ object AuthRepository {
             handler.handleErrors(ErrorCodes.NETWORK_ERROR)
         }
 
+        override fun getUser(): AuthUser? {
+            return currentUser
+        }
+
         override fun register(username: String, password: String, handler: AuthResponseHandler) {
             userService
                     .register(LoginInformation(username, password))
-                    .enqueue(DefaultRetrofitCallbackHandler(handler))
+                    .enqueue(object : DefaultRetrofitCallbackHandler(handler) {
+                        override fun handle(data: AuthUser?) {
+                            super.handle(data)
+                            if (data != null) {
+                                currentUser = data
+                            }
+                        }
+                    })
         }
 
         override fun login(username: String, password: String, handler: AuthResponseHandler) {
             userService
                     .login(LoginInformation(username, password))
-                    .enqueue(DefaultRetrofitCallbackHandler(handler))
+                    .enqueue(object : DefaultRetrofitCallbackHandler(handler) {
+                        override fun handle(data: AuthUser?) {
+                            super.handle(data)
+                            if (data != null) {
+                                currentUser = data
+                            }
+                        }
+                    })
         }
 
         override fun verifyAuth(context: Context, handler: AuthResponseHandler) {
@@ -145,7 +171,14 @@ object AuthRepository {
         override fun loginOauthGoogle(token: String, handler: AuthResponseHandler) {
             userService
                     .loginOauthGoogle(GoogleOauthToken(token))
-                    .enqueue(DefaultRetrofitCallbackHandler(handler))
+                    .enqueue(object : DefaultRetrofitCallbackHandler(handler) {
+                        override fun handle(data: AuthUser?) {
+                            super.handle(data)
+                            if (data != null) {
+                                currentUser = data
+                            }
+                        }
+                    })
         }
 
         internal interface InternetUserService {

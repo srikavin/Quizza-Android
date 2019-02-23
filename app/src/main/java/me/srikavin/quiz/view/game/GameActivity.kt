@@ -14,11 +14,12 @@ class GameActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.game_activity)
 
-        println(intent)
-        println(intent.getStringExtra(EXTRA_QUIZ_ID))
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .add(R.id.container, GameFragment.newInstance(intent.getStringExtra(EXTRA_QUIZ_ID)))
+                    .add(R.id.container, GameFragment.newInstance(intent.getStringExtra(EXTRA_QUIZ_ID), intent.getBooleanExtra(
+                            ONLINE,
+                            false
+                    )))
                     .commitNow()
         }
     }

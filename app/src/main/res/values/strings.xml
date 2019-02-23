@@ -60,6 +60,8 @@
     <string name="game_mode_offline_title">Individual Study</string>
     <string name="waiting_for_players">Waiting for players</string>
     <string name="offline_quiz">Offline Quiz</string>
+    <string name="sign_out_button">Sign Out</string>
+    <string name="offline_user_name">Offline User</string>
     <plurals name="contains_x_questions">
         <item quantity="one">Contains %d question</item>
         <item quantity="other">Contains %d questions</item>

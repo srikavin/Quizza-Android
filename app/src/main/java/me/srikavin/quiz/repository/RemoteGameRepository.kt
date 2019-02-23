@@ -36,6 +36,10 @@ private fun calculateTimeLeft(instant: Instant): Long {
 }
 
 class RemoteGameRepository : GameRepository.GameService {
+    override fun hasGame(id: GameID): Boolean {
+        return gameMap.containsKey(id)
+    }
+
     override fun quit(id: GameID) {
         stopMatchmaking()
         gameMap.remove(id)
