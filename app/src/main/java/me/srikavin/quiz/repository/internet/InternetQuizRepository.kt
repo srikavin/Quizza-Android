@@ -75,8 +75,8 @@ internal class InternetQuizRepository : InternetRepository<Quiz, QuizRepository.
         @GET("quizzes/owned")
         fun getOwned(): Single<List<Quiz>>
 
-        @POST("quiaaazzes")
-        fun deleteQuiz(@Body id: String): Completable
+        @DELETE("quizzes/{id}")
+        fun deleteQuiz(@Path("id") id: String): Completable
 
         @PUT("quizzes/{id}")
         fun editQuiz(@Path("id") id: String, @Body quiz: Quiz): Call<Quiz>

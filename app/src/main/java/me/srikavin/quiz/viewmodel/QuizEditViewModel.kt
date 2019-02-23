@@ -13,22 +13,17 @@ class QuizEditViewModel(application: Application) : AndroidViewModel(application
     private val quizRepository: QuizRepository = QuizRepository(application)
 
     fun createQuiz(): LiveData<Quiz> {
-        if (quiz == null) {
-            quiz = MutableLiveData()
-            val toSet = Quiz()
-            toSet.draft = true
-            quiz!!.postValue(toSet)
-            creatingQuiz = true
-        }
-
+        quiz = MutableLiveData()
+        val toSet = Quiz()
+        toSet.draft = true
+        quiz!!.postValue(toSet)
+        creatingQuiz = true
         return quiz as MutableLiveData<Quiz>
     }
 
     fun editQuiz(id: String): LiveData<Quiz> {
-        if (quiz == null) {
-            quiz = MutableLiveData()
-            creatingQuiz = false
-        }
+        quiz = MutableLiveData()
+        creatingQuiz = false
 
         quizRepository.getQuizByID(id, object : QuizRepository.QuizResponseHandler() {
             override fun handle(newQuiz: Quiz?) {
