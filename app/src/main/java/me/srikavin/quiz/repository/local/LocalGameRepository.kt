@@ -50,6 +50,10 @@ class LocalGameRepository : GameRepository.GameService {
     }
 
     override fun submitAnswer(id: GameID, answer: QuizAnswerModel?) {
+        if (idGameMap[id] == null) {
+            return
+        }
+
         val game = idGameMap[id]!!
 
         if (game.waitingForAnswer || game.state == QuizGameState.FINISHED) {
