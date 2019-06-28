@@ -1,0 +1,13 @@
+.img-container {
+    position: fixed;
+    right: -5vw;
+    transform: scale(.9);
+}
+
+ol, ul {
+    margin-left: 1vw;
+}
+
+html {
+    font-family: "Raleway", "Raleway Light", "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
