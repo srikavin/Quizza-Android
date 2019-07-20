@@ -1,5 +1,7 @@
 # Quizza - The FBLA Mobile Quiz App
 
+This project won first place at the Florida FBLA state leadership conference. The presentation slides can be viewed [here](presentation.pdf).
+
 ## Topic Correlation
 
 Quizza comes with 5 local sample quizzes. Users can create new quizzes and publish them online through the app. Offline quizzes can also be created without publishing online. These quizzes allow for FBLA members to spread and gain knowledge about FBLA competitive events, parliamentary procedure, and other FBLA details. Quizzes can be played online with friends or strangers to create a competitive atmosphere. The goal of this app is to make it fun and easy for students and FBLA members to learn on the go.
